@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            Netty核心源码剖析 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Netty核心源码剖析</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-12-20 11:14:30
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Netty/">Netty</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>4k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>15 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="为什么要看源码"><a href="#为什么要看源码" class="headerlink" title="为什么要看源码"></a>为什么要看源码</h1><ol>
+<li><strong>提升技术功底：</strong>学习源码里的优秀设计思想，比如一些疑难问题的解决思路，还有一些优秀的设计模式，整体提升自己的技术功底</li>
+<li><strong>深度掌握技术框架：</strong>源码看多了，对于一个新技术或框架的掌握速度会有大幅提升，看下框架demo大致就能知道底层的实现，技术框架更新再快也不怕</li>
+<li><strong>快速定位线上问题：</strong>遇到线上问题，特别是框架源码里的问题(比如bug)，能够快速定位，这就是相比其他没看过源码的人的优势</li>
+<li><strong>对面试大有裨益：</strong>面试一线互联网公司对于框架技术一般都会问到源码级别的实现</li>
+<li><strong>知其然知其所以然：</strong>对技术有追求的人必做之事，使用了一个好的框架，很想知道底层是如何实现的</li>
+<li><strong>拥抱开源社区：</strong>参与到开源项目的研发，结识更多大牛，积累更多优质人脉</li>
+</ol>
+<p><strong>看源码方法(凭经验去猜)：</strong></p>
+<ol>
+<li><strong>先使用：</strong>先看官方文档快速掌握框架的基本使用</li>
+<li><strong>抓主线：</strong>找一个demo入手，顺藤摸瓜快速静态看一遍框架的主线源码(<strong>抓大放小</strong>)，画出源码主流程图，切勿一开始就陷入源码的细枝末节，否则会把自己绕晕</li>
+<li><strong>画图做笔记：</strong>总结框架的一些核心功能点，从这些功能点入手深入到源码的细节，<strong>边看源码边画源码走向图</strong>，并对关键源码的理解做笔记，把源码里的闪光点都记录下来，后续借鉴到工作项目中，理解能力强的可以直接看静态源码，也可以边看源码边debug源码执行过程，观察一些关键变量的值</li>
+<li><strong>整合总结：</strong>所有功能点的源码都分析完后，回到主流程图再梳理一遍，争取把自己画的所有图都在脑袋里做一个整合</li>
+</ol>
+<h1 id="Netty线程模型图"><a href="#Netty线程模型图" class="headerlink" title="Netty线程模型图"></a>Netty线程模型图</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://raw.githubusercontent.com/dancing-monkey/image-hosting/master/20211220/image.4ww9v7mzs1s0.png"
+                     
+                ></p>
+<h2 id="Netty线程模型源码剖析图"><a href="#Netty线程模型源码剖析图" class="headerlink" title="Netty线程模型源码剖析图"></a><strong><a class="link"   target="_blank" rel="noopener" href="https://www.processon.com/view/link/5dee0943e4b079080a26c2ac" >Netty线程模型源码剖析图<i class="fas fa-external-link-alt"></i></a></strong></h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://raw.githubusercontent.com/dancing-monkey/image-hosting/master/20211220/image.49m8w1emxem0.png"
+                     
+                ></p>
+<h1 id="Netty高并发高性能架构设计精髓"><a href="#Netty高并发高性能架构设计精髓" class="headerlink" title="Netty高并发高性能架构设计精髓"></a><strong>Netty高并发高性能架构设计精髓</strong></h1><ul>
+<li>主从Reactor线程模型</li>
+<li>NIO多路复用非阻塞</li>
+<li><strong>无锁串行化</strong>设计思想</li>
+<li>支持高性能序列化协议</li>
+<li>零拷贝(直接内存的使用)</li>
+<li>ByteBuf内存池设计</li>
+<li>灵活的TCP参数配置能力</li>
+<li>并发优化</li>
+</ul>
+<h2 id="无锁串行化设计思想"><a href="#无锁串行化设计思想" class="headerlink" title="无锁串行化设计思想"></a><strong>无锁串行化设计思想</strong></h2><p>在大多数场景下，并行多线程处理可以提升系统的并发性能。但是，如果对于共享资源的并发访问处理不当，会带来严重的锁竞争，这最终会导致性能的下降。为了尽可能的避免锁竞争带来的性能损耗，可以通过串行化设计，即消息的处理尽可能在同一个线程内完成，期间不进行线程切换，这样就避免了多线程竞争和同步锁。NIO的多路复用就是一种无锁串行化的设计思想(理解下Redis和Netty的线程模型)</p>
+<p>为了尽可能提升性能，Netty采用了串行无锁化设计，在IO线程内部进行串行操作，避免多线程竞争导致的性能下降。表面上看，串行化设计似乎CPU利用率不高，并发程度不够。但是，通过调整NIO线程池的线程参数，可以同时启动多个串行化的线程并行运行，这种局部无锁化的串行线程设计相比一个队列-多个工作线程模型性能更优。</p>
+<p>Netty的NioEventLoop读取到消息之后，直接调用ChannelPipeline的fireChannelRead(Object msg)，只要用户不主动切换线程，一直会由NioEventLoop调用到用户的Handler，期间不进行线程切换，这种串行化处理方式避免了多线程操作导致的锁的竞争，从性能角度看是最优的。</p>
+<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a><strong>直接内存</strong></h2><p>直接内存（Direct Memory）并不是虚拟机运行时数据区的一部分，也不是Java虚拟机规范中定义的内存区域，某些情况下这部分内存也会被频繁地使用，而且也可能导致OutOfMemoryError异常出现。Java里用DirectByteBuffer可以分配一块直接内存(堆外内存)，元空间对应的内存也叫作直接内存，它们对应的都是机器的物理内存。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.7bq7l88rg6w0.png"
+                     
+                ></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 直接内存与堆内存的区别</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DirectMemoryTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">heapAccess</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="comment">//分配堆内存</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">1000</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">200</span>; j++) &#123;</span><br><span class="line">                buffer.putInt(j);</span><br><span class="line">            &#125;</span><br><span class="line">            buffer.flip();</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">200</span>; j++) &#123;</span><br><span class="line">                buffer.getInt();</span><br><span class="line">            &#125;</span><br><span class="line">            buffer.clear();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">&quot;堆内存访问:&quot;</span> + (endTime - startTime) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">directAccess</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="comment">//分配直接内存</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocateDirect(<span class="number">1000</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">200</span>; j++) &#123;</span><br><span class="line">                buffer.putInt(j);</span><br><span class="line">            &#125;</span><br><span class="line">            buffer.flip();</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">200</span>; j++) &#123;</span><br><span class="line">                buffer.getInt();</span><br><span class="line">            &#125;</span><br><span class="line">            buffer.clear();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">&quot;直接内存访问:&quot;</span> + (endTime - startTime) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">heapAllocate</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">            ByteBuffer.allocate(<span class="number">100</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">&quot;堆内存申请:&quot;</span> + (endTime - startTime) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">directAllocate</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">            ByteBuffer.allocateDirect(<span class="number">100</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(<span class="string">&quot;直接内存申请:&quot;</span> + (endTime - startTime) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            heapAccess();</span><br><span class="line">            directAccess();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            heapAllocate();</span><br><span class="line">            directAllocate();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line">堆内存访问:44ms</span><br><span class="line">直接内存访问:29ms</span><br><span class="line">堆内存访问:33ms</span><br><span class="line">直接内存访问:19ms</span><br><span class="line">堆内存访问:55ms</span><br><span class="line">直接内存访问:38ms</span><br><span class="line">堆内存访问:39ms</span><br><span class="line">直接内存访问:20ms</span><br><span class="line">堆内存访问:38ms</span><br><span class="line">直接内存访问:18ms</span><br><span class="line">堆内存访问:36ms</span><br><span class="line">直接内存访问:19ms</span><br><span class="line">堆内存访问:34ms</span><br><span class="line">直接内存访问:19ms</span><br><span class="line">堆内存访问:40ms</span><br><span class="line">直接内存访问:20ms</span><br><span class="line">堆内存访问:37ms</span><br><span class="line">直接内存访问:24ms</span><br><span class="line">堆内存访问:59ms</span><br><span class="line">直接内存访问:25ms</span><br><span class="line"></span><br><span class="line">堆内存申请:11ms</span><br><span class="line">直接内存申请:36ms</span><br><span class="line">堆内存申请:13ms</span><br><span class="line">直接内存申请:52ms</span><br><span class="line">堆内存申请:62ms</span><br><span class="line">直接内存申请:40ms</span><br><span class="line">堆内存申请:2ms</span><br><span class="line">直接内存申请:37ms</span><br><span class="line">堆内存申请:1ms</span><br><span class="line">直接内存申请:81ms</span><br><span class="line">堆内存申请:2ms</span><br><span class="line">直接内存申请:23ms</span><br><span class="line">堆内存申请:1ms</span><br><span class="line">直接内存申请:31ms</span><br><span class="line">堆内存申请:2ms</span><br><span class="line">直接内存申请:32ms</span><br><span class="line">堆内存申请:7ms</span><br><span class="line">直接内存申请:41ms</span><br><span class="line">堆内存申请:8ms</span><br><span class="line">直接内存申请:142ms</span><br></pre></td></tr></table></figure>
+
+<p>从程序运行结果看出直接内存申请较慢，但访问效率高。在java虚拟机实现上，本地IO一般会直接操作直接内存（直接内存=&gt;系统调用=&gt;硬盘/网卡），而非直接内存则需要二次拷贝（堆内存=&gt;直接内存=&gt;系统调用=&gt;硬盘/网卡）。</p>
+<h3 id="直接内存分配源码分析"><a href="#直接内存分配源码分析" class="headerlink" title="直接内存分配源码分析"></a><strong>直接内存分配源码分析</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ByteBuffer <span class="title function_">allocateDirect</span><span class="params">(<span class="type">int</span> capacity)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DirectByteBuffer</span>(capacity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">DirectByteBuffer(<span class="type">int</span> cap) &#123;                   <span class="comment">// package-private</span></span><br><span class="line">    <span class="built_in">super</span>(-<span class="number">1</span>, <span class="number">0</span>, cap, cap);</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">pa</span> <span class="operator">=</span> VM.isDirectMemoryPageAligned();</span><br><span class="line">    <span class="type">int</span> <span class="variable">ps</span> <span class="operator">=</span> Bits.pageSize();</span><br><span class="line">    <span class="type">long</span> <span class="variable">size</span> <span class="operator">=</span> Math.max(<span class="number">1L</span>, (<span class="type">long</span>)cap + (pa ? ps : <span class="number">0</span>));</span><br><span class="line">    <span class="comment">//判断是否有足够的直接内存空间分配，可通过-XX:MaxDirectMemorySize=&lt;size&gt;参数指定直接内存最大可分配空间，如果不指定默认为最大堆内存大小，</span></span><br><span class="line">    <span class="comment">//在分配直接内存时如果发现空间不够会显示调用System.gc()触发一次full gc回收掉一部分无用的直接内存的引用对象，同时直接内存也会被释放掉</span></span><br><span class="line">    <span class="comment">//如果释放完分配空间还是不够会抛出异常java.lang.OutOfMemoryError</span></span><br><span class="line">    Bits.reserveMemory(size, cap);</span><br><span class="line"></span><br><span class="line">    <span class="type">long</span> <span class="variable">base</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 调用unsafe本地方法分配直接内存</span></span><br><span class="line">        base = unsafe.allocateMemory(size);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (OutOfMemoryError x) &#123;</span><br><span class="line">        <span class="comment">// 分配失败，释放内存</span></span><br><span class="line">        Bits.unreserveMemory(size, cap);</span><br><span class="line">        <span class="keyword">throw</span> x;</span><br><span class="line">    &#125;</span><br><span class="line">    unsafe.setMemory(base, size, (<span class="type">byte</span>) <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (pa &amp;&amp; (base % ps != <span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="comment">// Round up to page boundary</span></span><br><span class="line">        address = base + ps - (base &amp; (ps - <span class="number">1</span>));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        address = base;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用Cleaner机制注册内存回收处理函数，当直接内存引用对象被GC清理掉时，</span></span><br><span class="line">    <span class="comment">// 会提前调用这里注册的释放直接内存的Deallocator线程对象的run方法</span></span><br><span class="line">    cleaner = Cleaner.create(<span class="built_in">this</span>, <span class="keyword">new</span> <span class="title class_">Deallocator</span>(base, size, cap));</span><br><span class="line">    att = <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 申请一块本地内存。内存空间是未初始化的，其内容是无法预期的。</span></span><br><span class="line"><span class="comment">// 使用freeMemory释放内存，使用reallocateMemory修改内存大小</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> <span class="type">long</span> <span class="title function_">allocateMemory</span><span class="params">(<span class="type">long</span> bytes)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// openjdk8/hotspot/src/share/vm/prims/unsafe.cpp</span></span><br><span class="line">UNSAFE_ENTRY(jlong, Unsafe_AllocateMemory(JNIEnv *env, jobject unsafe, jlong size))</span><br><span class="line">    UnsafeWrapper(<span class="string">&quot;Unsafe_AllocateMemory&quot;</span>);</span><br><span class="line"><span class="type">size_t</span> <span class="variable">sz</span> <span class="operator">=</span> (size_t)size;</span><br><span class="line"><span class="keyword">if</span> (sz != (julong)size || size &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    THROW_0(vmSymbols::java_lang_IllegalArgumentException());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (sz == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">sz = round_to(sz, HeapWordSize);</span><br><span class="line"><span class="comment">// 调用os::malloc申请内存，内部使用malloc这个C标准库的函数申请内存</span></span><br><span class="line"><span class="keyword">void</span>* x = os::malloc(sz, mtInternal);</span><br><span class="line"><span class="keyword">if</span> (x == NULL) &#123;</span><br><span class="line">    THROW_0(vmSymbols::java_lang_OutOfMemoryError());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Copy::fill_to_words((HeapWord*)x, sz / HeapWordSize);</span></span><br><span class="line"><span class="keyword">return</span> addr_to_java(x);</span><br><span class="line">UNSAFE_END</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用直接内存的优缺点"><a href="#使用直接内存的优缺点" class="headerlink" title="使用直接内存的优缺点"></a><strong>使用直接内存的优缺点</strong></h3><p>优点：</p>
+<ul>
+<li>不占用堆内存空间，减少了发生GC的可能</li>
+<li>java虚拟机实现上，本地IO会直接操作直接内存（直接内存=&gt;系统调用=&gt;硬盘/网卡），而非直接内存则需要二次拷贝（堆内存=&gt;直接内存=&gt;系统调用=&gt;硬盘/网卡）</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>初始分配较慢</li>
+<li>没有JVM直接帮助管理内存，容易发生内存溢出。为了避免一直没有FULL GC，最终导致直接内存把物理内存耗完。我们可以指定直接内存的最大值，通过-XX：MaxDirectMemorySize来指定，当达到阈值的时候，调用system.gc来进行一次FULL GC，间接把那些没有被使用的直接内存回收掉。</li>
+</ul>
+<h3 id="Netty零拷贝"><a href="#Netty零拷贝" class="headerlink" title="Netty零拷贝"></a><strong>Netty零拷贝</strong></h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.641n4b4hips0.png"
+                     
+                ></p>
+<p>Netty的接收和发送ByteBuf采用DIRECT BUFFERS，使用堆外<strong>直接内存</strong>进行Socket读写，不需要进行字节缓冲区的二次拷贝。</p>
+<p>如果使用传统的JVM堆内存（HEAP BUFFERS）进行Socket读写，JVM会将堆内存Buffer拷贝一份到直接内存中，然后才能写入Socket中。JVM堆内存的数据是不能直接写入Socket中的。相比于堆外直接内存，消息在发送过程中多了一次缓冲区的内存拷贝。</p>
+<p>可以看下netty的读写源码，比如read源码NioByteUnsafe.read()</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.ur8s28ff9fk.png"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.73uqdwtvbn80.png"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2d47rvrei79c.png"
+                     
+                ></p>
+<h2 id="ByteBuf内存池设计"><a href="#ByteBuf内存池设计" class="headerlink" title="ByteBuf内存池设计"></a><strong>ByteBuf内存池设计</strong></h2><p>随着JVM虚拟机和JIT即时编译技术的发展，对象的分配和回收是个非常轻量级的工作。但是对于缓冲区Buffer(相当于一个内存块)，情况却稍有不同，特别是对于堆外直接内存的分配和回收，是一件耗时的操作。为了尽量重用缓冲区，Netty提供了基于ByteBuf内存池的缓冲区重用机制。需要的时候直接从池子里获取ByteBuf使用即可，使用完毕之后就重新放回到池子里去。下面我们一起看下Netty ByteBuf的实现：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.10peiean37cg.png"
+                     
+                ></p>
+<p>可以看下netty的读写源码里面用到的ByteBuf内存池，比如read源码NioByteUnsafe.read()</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2i4ekzpaizs0.png"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.3nwxnun7g0g0.png"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.4n6kete0ut.png"
+                     
+                ></p>
+<p> 继续看newDirectBuffer方法，我们发现它是一个抽象方法，由AbstractByteBufAllocator的子类负责具体实现，代码如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.69ytejtj5ws0.png"
+                     
+                ></p>
+<p> 代码跳转到PooledByteBufAllocator的newDirectBuffer方法，从Cache中获取内存区域PoolArena，调用它的allocate方法进行内存分配：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.67g4qc8abpo0.png"
+                     
+                ></p>
+<p> PoolArena的allocate方法如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.5z8xpid2zvc0.png"
+                     
+                ></p>
+<p> 我们重点分析newByteBuf的实现，它同样是个抽象方法，由子类DirectArena和HeapArena来实现不同类型的缓冲区分配</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.orpf726k074.png"
+                     
+                ></p>
+<p> 我们这里使用的是直接内存，因此重点分析DirectArena的实现</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2ds1lcew1680.png"
+                     
+                ></p>
+<p> 最终执行了PooledUnsafeDirectByteBuf的newInstance方法，代码如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2wvm9fjuv9i0.png"
+                     
+                ></p>
+<p> 通过RECYCLER的get方法循环使用ByteBuf对象，如果是非内存池实现，则直接创建一个新的ByteBuf对象。</p>
+<h2 id="灵活的TCP参数配置能力"><a href="#灵活的TCP参数配置能力" class="headerlink" title="灵活的TCP参数配置能力"></a><strong>灵活的TCP参数配置能力</strong></h2><p>合理设置TCP参数在某些场景下对于性能的提升可以起到显著的效果，例如接收缓冲区SO_RCVBUF和发送缓冲区SO_SNDBUF。如果设置不当，对性能的影响是非常大的。通常建议值为128K或者256K。</p>
+<p>Netty在启动辅助类ChannelOption中可以灵活的配置TCP参数，满足不同的用户场景。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.3dglsx1ao900.png"
+                     
+                ></p>
+<h2 id="并发优化"><a href="#并发优化" class="headerlink" title="并发优化"></a><strong>并发优化</strong></h2><ul>
+<li>volatile的大量、正确使用;</li>
+<li>CAS和原子类的广泛使用；</li>
+<li>线程安全容器的使用；</li>
+<li>通过读写锁提升并发性能。</li>
+</ul>
+<h2 id="ByteBuf扩容机制"><a href="#ByteBuf扩容机制" class="headerlink" title="ByteBuf扩容机制"></a><strong>ByteBuf扩容机制</strong></h2><p> 如果我们需要了解ByteBuf的扩容,我们需要先了解ByteBuf中定义的几个成员变量，再从源码的角度来分析扩容。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.6c4empufo6s0.png"
+                     
+                ></p>
+<ul>
+<li>minNewCapacity：表用户需要写入的值大小</li>
+<li>threshold：阈值，为Bytebuf内部设定容量的最大值</li>
+<li>maxCapacity：Netty最大能接受的容量大小，一般为int的最大值</li>
+</ul>
+<h3 id="ByteBuf核心扩容方法"><a href="#ByteBuf核心扩容方法" class="headerlink" title="ByteBuf核心扩容方法"></a>ByteBuf核心扩容方法</h3><p>进入ByteBuf源码中，深入分析其扩容方法： idea源码进入：ByteBuf.writeByte()-&gt;AbstractByteBuf-&gt;calculateNewCapacity</p>
+<ol>
+<li>判断目标值与阈值threshold（4MB）的大小关系，等于直接返回阈值<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2qo3s7ijkcg0.png"
+                     
+                ></li>
+<li>采用步进4MB的方式完成扩容<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.2bibhl1vrl8g.png"
+                     
+                ></li>
+<li>采用64为基数，做倍增的方式完成扩容<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20211220/image.3a18aei1s1w0.png"
+                     
+                ></li>
+</ol>
+<p><strong>总结</strong>：Netty的ByteBuf需要动态扩容来满足需要，扩容过程： 默认门限阈值为4MB(这个阈值是一个经验值，不同场景，可能取值不同)，当需要的容量等于门限阈值，使用阈值作为新的缓存区容量 目标容量，如果大于阈值，采用每次步进4MB的方式进行内存扩张（(需要扩容值/4MB)*4MB），扩张后需要和最大内存（maxCapacity）进行比较，大于maxCapacity的话就用maxCapacity,否则使用扩容值 目标容量，如果小于阈值，采用倍增的方式，以64（字节）作为基本数值，每次翻倍增长64 –&gt;128 –&gt; 256，直到倍增后的结果大于或等于需要的容量值。</p>
+<h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h2 id="handler的生命周期回调接口调用顺序"><a href="#handler的生命周期回调接口调用顺序" class="headerlink" title="handler的生命周期回调接口调用顺序"></a><strong>handler的生命周期回调接口调用顺序</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  在channel的pipeline里如下handler: ch.pipeline().addLast(new LifeCycleInBoundHandler());</span></span><br><span class="line"><span class="comment"> *  handler的生命周期回调接口调用顺序:</span></span><br><span class="line"><span class="comment"> *  handlerAdded -&gt; channelRegistered -&gt; channelActive -&gt; channelRead -&gt; channelReadComplete</span></span><br><span class="line"><span class="comment"> *  -&gt; channelInactive -&gt; channelUnRegistered -&gt; handlerRemoved</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * handlerAdded: 新建立的连接会按照初始化策略，把handler添加到该channel的pipeline里面，也就是channel.pipeline.addLast(new LifeCycleInBoundHandler)执行完成后的回调；</span></span><br><span class="line"><span class="comment"> * channelRegistered: 当该连接分配到具体的worker线程后，该回调会被调用。</span></span><br><span class="line"><span class="comment"> * channelActive: channel的准备工作已经完成，所有的pipeline添加完成，并分配到具体的线上上，说明该channel准备就绪，可以使用了。</span></span><br><span class="line"><span class="comment"> * channelRead: 客户端向服务端发来数据，每次都会回调此方法，表示有数据可读；</span></span><br><span class="line"><span class="comment"> * channelReadComplete: 服务端每次读完一次完整的数据之后，回调该方法，表示数据读取完毕；</span></span><br><span class="line"><span class="comment"> * channelInactive: 当连接断开时，该回调会被调用，说明这时候底层的TCP连接已经被断开了。</span></span><br><span class="line"><span class="comment"> * channelUnRegistered: 对应channelRegistered，当连接关闭后，释放绑定的workder线程；</span></span><br><span class="line"><span class="comment"> * handlerRemoved: 对应handlerAdded，将handler从该channel的pipeline移除后的回调方法。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LifeCycleInBoundHandler</span> <span class="keyword">extends</span> <span class="title class_">ChannelInboundHandlerAdapter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRegistered</span><span class="params">(ChannelHandlerContext ctx)</span></span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelRegistered: channel注册到NioEventLoop&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.channelRegistered(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelUnregistered</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelUnregistered: channel取消和NioEventLoop的绑定&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.channelUnregistered(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelActive: channel准备就绪&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.channelActive(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelInactive: channel被关闭&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.channelInactive(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelRead: channel中有可读的数据&quot;</span> );</span><br><span class="line">        <span class="built_in">super</span>.channelRead(ctx, msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">channelReadComplete</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;channelReadComplete: channel读数据完成&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.channelReadComplete(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handlerAdded</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;handlerAdded: handler被添加到channel的pipeline&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.handlerAdded(ctx);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handlerRemoved</span><span class="params">(ChannelHandlerContext ctx)</span> </span><br><span class="line">        <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;handlerRemoved: handler从channel的pipeline中移除&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.handlerRemoved(ctx);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2022/03/14/K8S/k8s%E7%AE%80%E4%BB%8B/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">k8s简介</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/12/20/%E4%B8%AD%E9%97%B4%E4%BB%B6/Netty/Netty%E7%BC%96%E8%A7%A3%E7%A0%81-%E7%B2%98%E5%8C%85%E6%8B%86%E5%8C%85-%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6-%E6%96%AD%E7%BA%BF%E8%87%AA%E5%8A%A8%E9%87%8D%E8%BF%9E/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Netty编解码&amp;粘包拆包&amp;心跳机制&amp;断线自动重连</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%9C%8B%E6%BA%90%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">为什么要看源码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Netty%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">Netty线程模型图</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Netty%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E5%9B%BE"><span class="nav-number">2.1.</span> <span class="nav-text">Netty线程模型源码剖析图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Netty%E9%AB%98%E5%B9%B6%E5%8F%91%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E7%B2%BE%E9%AB%93"><span class="nav-number">3.</span> <span class="nav-text">Netty高并发高性能架构设计精髓</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E9%94%81%E4%B8%B2%E8%A1%8C%E5%8C%96%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="nav-number">3.1.</span> <span class="nav-text">无锁串行化设计思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98"><span class="nav-number">3.2.</span> <span class="nav-text">直接内存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">3.2.1.</span> <span class="nav-text">直接内存分配源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.2.</span> <span class="nav-text">使用直接内存的优缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Netty%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="nav-number">3.2.3.</span> <span class="nav-text">Netty零拷贝</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ByteBuf%E5%86%85%E5%AD%98%E6%B1%A0%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.3.</span> <span class="nav-text">ByteBuf内存池设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%81%B5%E6%B4%BB%E7%9A%84TCP%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E8%83%BD%E5%8A%9B"><span class="nav-number">3.4.</span> <span class="nav-text">灵活的TCP参数配置能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E4%BC%98%E5%8C%96"><span class="nav-number">3.5.</span> <span class="nav-text">并发优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ByteBuf%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6"><span class="nav-number">3.6.</span> <span class="nav-text">ByteBuf扩容机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ByteBuf%E6%A0%B8%E5%BF%83%E6%89%A9%E5%AE%B9%E6%96%B9%E6%B3%95"><span class="nav-number">3.6.1.</span> <span class="nav-text">ByteBuf核心扩容方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#handler%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8%E9%A1%BA%E5%BA%8F"><span class="nav-number">4.1.</span> <span class="nav-text">handler的生命周期回调接口调用顺序</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

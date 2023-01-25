@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            定时任务与定时线程池 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">定时任务与定时线程池</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-12-03 20:35:22
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java/">Java</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E5%B9%B6%E5%8F%91/">并发</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>4.3k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>17 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="ScheduledThreadPoolExecutor"><a href="#ScheduledThreadPoolExecutor" class="headerlink" title="ScheduledThreadPoolExecutor"></a><strong>ScheduledThreadPoolExecutor</strong></h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.1155nt2gqn1c.png"
+                     
+                ></p>
+<p>它用来处理延时任务或定时任务</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.22u6rv0htn9c.png"
+                     
+                ></p>
+<p>它接收SchduledFutureTask类型的任务，是线程池调度任务的最小单位，有三种提交任务的方式：</p>
+<ol>
+<li>schedule</li>
+<li>scheduledAtFixedRate</li>
+<li>scheduledWithFixedDelay</li>
+</ol>
+<p>它采用DelayQueue存储等待的任务</p>
+<ol>
+<li>DelayQueue内部封装了一个PriorityQueue，它会根据time的先后时间排序，若time相同则根据sequenceNumber排序</li>
+<li>DelayQueue也是一个无界队列</li>
+</ol>
+<h2 id="SchduledFutureTask"><a href="#SchduledFutureTask" class="headerlink" title="SchduledFutureTask"></a><strong>SchduledFutureTask</strong></h2><p>SchduledFutureTask接收的参数(成员变量)：</p>
+<ol>
+<li><strong>private long</strong> <strong>time</strong>：任务开始的时间</li>
+<li><strong>private final long</strong> <strong>sequenceNumber</strong>;：任务的序号</li>
+<li><strong>private final long</strong> <strong>period</strong>：任务执行的时间间隔</li>
+</ol>
+<p>工作线程的执行过程：</p>
+<ul>
+<li>工作线程会从DelayQueue取已经到期的任务去执行；</li>
+<li>执行结束后重新设置任务的到期时间，再次放回DelayQueue</li>
+</ul>
+<p>ScheduledThreadPoolExecutor会把待执行的任务放到工作队列DelayQueue中，DelayQueue封装了一个PriorityQueue，PriorityQueue会对队列中的ScheduledFutureTask进行排序，具体的排序算法实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(Delayed other)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (other == <span class="built_in">this</span>) <span class="comment">// compare zero if same object</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (other <span class="keyword">instanceof</span> ScheduledFutureTask) &#123;</span><br><span class="line">    ScheduledFutureTask&lt;?&gt; x = (ScheduledFutureTask&lt;?&gt;)other;</span><br><span class="line">    <span class="type">long</span> <span class="variable">diff</span> <span class="operator">=</span> time - x.time;</span><br><span class="line">    <span class="keyword">if</span> (diff &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (diff &gt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (sequenceNumber &lt; x.sequenceNumber)</span><br><span class="line">      <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">long</span> <span class="variable">diff</span> <span class="operator">=</span> getDelay(NANOSECONDS) - other.getDelay(NANOSECONDS);</span><br><span class="line">  <span class="keyword">return</span> (diff &lt; <span class="number">0</span>) ? -<span class="number">1</span> : (diff &gt; <span class="number">0</span>) ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>首先按照time排序，time小的排在前面，time大的排在后面；</li>
+<li>如果time相同，按照sequenceNumber排序，sequenceNumber小的排在前面，sequenceNumber大的排在后面，换句话说，如果两个task的执行时间相同，优先执行先提交的task</li>
+</ol>
+<h3 id="SchduledFutureTask之run方法实现"><a href="#SchduledFutureTask之run方法实现" class="headerlink" title="SchduledFutureTask之run方法实现"></a>SchduledFutureTask之run方法实现</h3><p>run方法是调度task的核心，task的执行实际上是run方法的执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">boolean</span> <span class="variable">periodic</span> <span class="operator">=</span> isPeriodic();</span><br><span class="line">  <span class="comment">//如果当前线程池已经不支持执行任务，则取消</span></span><br><span class="line">  <span class="keyword">if</span> (!canRunInCurrentRunState(periodic))</span><br><span class="line">    cancel(<span class="literal">false</span>);</span><br><span class="line">  <span class="comment">//如果不需要周期性执行，则直接执行run方法然后结束</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (!periodic)</span><br><span class="line">    ScheduledFutureTask.<span class="built_in">super</span>.run();</span><br><span class="line">  <span class="comment">//如果需要周期执行，则在执行完任务以后，设置下一次执行时间</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (ScheduledFutureTask.<span class="built_in">super</span>.runAndReset()) &#123;</span><br><span class="line">    <span class="comment">// 计算下次执行该任务的时间</span></span><br><span class="line">    setNextRunTime();</span><br><span class="line">    <span class="comment">//重复执行任务</span></span><br><span class="line">    reExecutePeriodic(outerTask);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>如果当前线程池运行状态不可以执行任务，取消该任务，然后直接返回，否则执行步骤2；</li>
+<li>如果不是周期性任务，调用FutureTask中的run方法执行，会设置执行结果，然后直接返回，否则执行步骤3；</li>
+<li>如果是周期性任务，调用FutureTask中的runAndReset方法执行，不会设置执行结果，然后直接返回，否则执行步骤4和步骤5；</li>
+<li>计算下次执行该任务的具体时间；</li>
+<li>重复执行任务。</li>
+</ol>
+<h3 id="reExecutePeriodic方法"><a href="#reExecutePeriodic方法" class="headerlink" title="reExecutePeriodic方法"></a>reExecutePeriodic方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">reExecutePeriodic</span><span class="params">(RunnableScheduledFuture&lt;?&gt; task)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (canRunInCurrentRunState(<span class="literal">true</span>)) &#123;</span><br><span class="line">    <span class="built_in">super</span>.getQueue().add(task);</span><br><span class="line">    <span class="keyword">if</span> (!canRunInCurrentRunState(<span class="literal">true</span>) &amp;&amp; remove(task))</span><br><span class="line">      task.cancel(<span class="literal">false</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      ensurePrestart();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该方法和delayedExecute方法类似，不同的是：</p>
+<ol>
+<li>由于调用reExecutePeriodic方法时已经执行过一次周期性任务了，所以不会reject当前任务；</li>
+<li>传入的任务一定是周期性任务。</li>
+</ol>
+<h2 id="线程池任务的提交"><a href="#线程池任务的提交" class="headerlink" title="线程池任务的提交"></a><strong>线程池任务的提交</strong></h2><p>首先是schedule方法，该方法是指任务在指定延迟时间到达后触发，只会执行一次</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ScheduledFuture&lt;?&gt; schedule(Runnable command,</span><br><span class="line">                                   <span class="type">long</span> delay,</span><br><span class="line">                                   TimeUnit unit) &#123;</span><br><span class="line">  <span class="comment">//参数校验</span></span><br><span class="line">  <span class="keyword">if</span> (command == <span class="literal">null</span> || unit == <span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">  <span class="comment">//这里是一个嵌套结构，首先把用户提交的任务包装成ScheduledFutureTask</span></span><br><span class="line">  <span class="comment">//然后在调用decorateTask进行包装，该方法是留给用户去扩展的，默认是个空方法</span></span><br><span class="line">  RunnableScheduledFuture&lt;?&gt; t = decorateTask(command, <span class="keyword">new</span> <span class="title class_">ScheduledFutureTask</span>&lt;Void&gt;(command, <span class="literal">null</span>, triggerTime(delay, unit)));</span><br><span class="line">  <span class="comment">//包装好任务以后，就进行提交了</span></span><br><span class="line">  delayedExecute(t);</span><br><span class="line">  <span class="keyword">return</span> t;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>任务提交</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">delayedExecute</span><span class="params">(RunnableScheduledFuture&lt;?&gt; task)</span> &#123;</span><br><span class="line">  <span class="comment">//如果线程池已经关闭，则使用拒绝策略把提交任务拒绝掉</span></span><br><span class="line">  <span class="keyword">if</span> (isShutdown())</span><br><span class="line">    reject(task);</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//与ThreadPoolExecutor不同，这里直接把任务加入延迟队列</span></span><br><span class="line">    <span class="built_in">super</span>.getQueue().add(task);<span class="comment">//使用用的DelayedWorkQueue</span></span><br><span class="line">    <span class="comment">//如果当前状态无法执行任务，则取消</span></span><br><span class="line">    <span class="keyword">if</span> (isShutdown() &amp;&amp;</span><br><span class="line">        !canRunInCurrentRunState(task.isPeriodic()) &amp;&amp;</span><br><span class="line">        remove(task))</span><br><span class="line">      task.cancel(<span class="literal">false</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="comment">//这里是增加一个worker线程，避免提交的任务没有worker去执行</span></span><br><span class="line">      <span class="comment">//原因就是该类没有像ThreadPoolExecutor一样，woker满了才放入队列</span></span><br><span class="line">      ensurePrestart();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="DelayedWorkQueue"><a href="#DelayedWorkQueue" class="headerlink" title="DelayedWorkQueue"></a><strong>DelayedWorkQueue</strong></h1><p>ScheduledThreadPoolExecutor之所以要自己实现阻塞的工作队列，是因为ScheduledThreadPoolExecutor要求的工作队列有些特殊。</p>
+<p>DelayedWorkQueue是一个基于堆的数据结构，类似于DelayQueue和PriorityQueue。在执行定时任务的时候，每个任务的执行时间都不同，所以DelayedWorkQueue的工作就是按照执行时间的升序来排列，执行时间距离当前时间越近的任务在队列的前面（<strong>注意：这里的顺序并不是绝对的，堆中的排序只保证了子节点的下次执行时间要比父节点的下次执行时间要大，而叶子节点之间并不一定是顺序的，下文中会说明</strong>）</p>
+<p>堆结构</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.242ecgjejzs0.png"
+                      style="zoom:67%;" 
+                >
+
+<p>可见，DelayedWorkQueue是一个基于最小堆结构的队列。堆结构可以使用数组表示，可以转换成如下的数组：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.2an09q52sgbo.png"
+                     
+                ></p>
+<p>在这种结构中，可以发现有如下特性：</p>
+<p>假设，索引值从0开始，子节点的索引值为k，父节点的索引值为p，则：</p>
+<ol>
+<li>一个节点的左子节点的索引为：k = p * 2 + 1；</li>
+<li>一个节点的右子节点的索引为：k = (p + 1) * 2；</li>
+<li>一个节点的父节点的索引为：p = (k - 1) / 2。</li>
+</ol>
+<p><strong>为什么要使用DelayedWorkQueue呢？</strong></p>
+<p>定时任务执行时需要取出最近要执行的任务，所以任务在队列中每次出队时一定要是当前队列中执行时间最靠前的，所以自然要使用优先级队列。<br>DelayedWorkQueue是一个优先级队列，它可以保证每次出队的任务都是当前队列中执行时间最靠前的，由于它是基于堆结构的队列，堆结构在执行插入和删除操作时的最坏时间复杂度是 *O(logN)*。</p>
+<h2 id="DelayedWorkQueue属性"><a href="#DelayedWorkQueue属性" class="headerlink" title="DelayedWorkQueue属性"></a><strong>DelayedWorkQueue属性</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 队列初始容量</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">INITIAL_CAPACITY</span> <span class="operator">=</span> <span class="number">16</span>;</span><br><span class="line"><span class="comment">// 根据初始容量创建RunnableScheduledFuture类型的数组</span></span><br><span class="line"><span class="keyword">private</span> RunnableScheduledFuture&lt;?&gt;[] queue =</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">RunnableScheduledFuture</span>&lt;?&gt;[INITIAL_CAPACITY];</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="comment">// leader线程</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">Thread</span> <span class="variable">leader</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"><span class="comment">// 当较新的任务在队列的头部可用时，或者新线程可能需要成为leader，则通过该条件发出信号</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Condition</span> <span class="variable">available</span> <span class="operator">=</span> lock.newCondition();</span><br></pre></td></tr></table></figure>
+
+<p>注意这里的leader，它是Leader-Follower模式的变体，用于减少不必要的定时等待。什么意思呢？对于多线程的网络模型来说：<br>所有线程会有三种身份中的一种：leader和follower，以及一个干活中的状态：proccesser。它的基本原则就是，永远最多只有一个leader。而所有follower都在等待成为leader。线程池启动时会自动产生一个Leader负责等待网络IO事件，当有一个事件产生时，Leader线程首先通知一个Follower线程将其提拔为新的Leader，然后自己就去干活了，去处理这个网络事件，处理完毕后加入Follower线程等待队列，等待下次成为Leader。这种方法可以增强CPU高速缓存相似性，及消除动态内存分配和线程间的数据交换。</p>
+<h2 id="offer方法"><a href="#offer方法" class="headerlink" title="offer方法"></a><strong>offer方法</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">offer</span><span class="params">(Runnable x)</span> &#123;</span><br><span class="line">  <span class="comment">//参数校验</span></span><br><span class="line">  <span class="keyword">if</span> (x == <span class="literal">null</span>)</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NullPointerException</span>();</span><br><span class="line">  RunnableScheduledFuture&lt;?&gt; e = (RunnableScheduledFuture&lt;?&gt;)x;</span><br><span class="line">  <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line">  lock.lock();</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">//查看当前元素数量，如果大于队列长度则进行扩容</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> size;</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= queue.length)</span><br><span class="line">      grow();</span><br><span class="line">    <span class="comment">//元素数量加1</span></span><br><span class="line">    size = i + <span class="number">1</span>;</span><br><span class="line">    <span class="comment">//如果当前队列还没有元素，则直接加入头部</span></span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">      queue[<span class="number">0</span>] = e;</span><br><span class="line">      <span class="comment">//记录索引</span></span><br><span class="line">      setIndex(e, <span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//把任务加入堆中，并调整堆结构，这里就会根据任务的触发时间排列</span></span><br><span class="line">      <span class="comment">//把需要最早执行的任务放在前面</span></span><br><span class="line">      siftUp(i, e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//如果新加入的元素就是队列头，这里有两种情况</span></span><br><span class="line">    <span class="comment">//1.这是用户提交的第一个任务</span></span><br><span class="line">    <span class="comment">//2.新任务进行堆调整以后，排在队列头</span></span><br><span class="line">    <span class="keyword">if</span> (queue[<span class="number">0</span>] == e) &#123;</span><br><span class="line">      <span class="comment">// leader设置为null为了使在take方法中的线程在通过available.signal();后会执行available.awaitNanos(delay);</span></span><br><span class="line">      leader = <span class="literal">null</span>;</span><br><span class="line">      <span class="comment">//加入元素以后，唤醒worker线程</span></span><br><span class="line">      available.signal();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="任务排序sift方法"><a href="#任务排序sift方法" class="headerlink" title="任务排序sift方法"></a><strong>任务排序sift方法</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">siftUp</span><span class="params">(<span class="type">int</span> k, RunnableScheduledFuture&lt;?&gt; key)</span> &#123;</span><br><span class="line">	<span class="comment">// 找到父节点的索引</span></span><br><span class="line">  <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// 获取父节点</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">parent</span> <span class="operator">=</span> (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">    RunnableScheduledFuture&lt;?&gt; e = queue[parent];</span><br><span class="line">    <span class="comment">// 如果key节点的执行时间大于父节点的执行时间，不需要再排序了</span></span><br><span class="line">    <span class="keyword">if</span> (key.compareTo(e) &gt;= <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="comment">// 如果key.compareTo(e) &lt; 0，说明key节点的执行时间小于父节点的执行时间，需要把父节点移到后面</span></span><br><span class="line">    queue[k] = e;</span><br><span class="line">    setIndex(e, k);</span><br><span class="line">    <span class="comment">// 设置索引为k</span></span><br><span class="line">    k = parent;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// key设置为排序后的位置中</span></span><br><span class="line">  queue[k] = key;</span><br><span class="line">  setIndex(key, k);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码很好理解，就是循环的根据key节点与它的父节点来判断，如果key节点的执行时间小于父节点，则将两个节点交换，使执行时间靠前的节点排列在队列的前面。</p>
+<p>假设新入队的节点的延迟时间（调用getDelay()方法获得）是5，执行过程如下：</p>
+<ol>
+<li><strong>先将新的节点添加到数组的尾部，这时新节点的索引k为7：</strong></li>
+</ol>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.6zaaq7nuvrg0.png"
+                      style="zoom:67%;" 
+                >
+
+<ol start="2">
+<li><strong>计算新父节点的索引：parent = (k - 1) &gt;&gt;&gt; 1，parent = 3，那么queue[3]的时间间隔值为8，因为 5 &lt; 8 ，将执行queue[7] = queue[3]：</strong></li>
+</ol>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.6oby6rnra1w0.png"
+                      style="zoom:67%;" 
+                >
+
+<ol start="3">
+<li><strong>这时将k设置为3，继续循环，再次计算parent为1，queue[1]的时间间隔为3，因为 5 &gt; 3 ，这时退出循环，最终k为3：</strong></li>
+</ol>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.4z0hgrh1klk0.png"
+                      style="zoom:67%;" 
+                >
+
+<p>可见，每次新增节点时，只是根据父节点来判断，而不会影响兄弟节点</p>
+<h2 id="take方法"><a href="#take方法" class="headerlink" title="take方法"></a><strong>take方法</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> RunnableScheduledFuture&lt;?&gt; take() <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line">  lock.lockInterruptibly();</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (; ; ) &#123;</span><br><span class="line">      RunnableScheduledFuture&lt;?&gt; first = queue[<span class="number">0</span>];</span><br><span class="line">      <span class="keyword">if</span> (first == <span class="literal">null</span>)</span><br><span class="line">        available.await();</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 计算当前时间到执行时间的时间间隔</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">delay</span> <span class="operator">=</span> first.getDelay(NANOSECONDS);</span><br><span class="line">        <span class="keyword">if</span> (delay &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span> finishPoll(first);</span><br><span class="line">        first = <span class="literal">null</span>; <span class="comment">// don&#x27;t retain ref while waiting</span></span><br><span class="line">        <span class="comment">// leader不为空，阻塞线程</span></span><br><span class="line">        <span class="keyword">if</span> (leader != <span class="literal">null</span>)</span><br><span class="line">          available.await();</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// leader为空，则把leader设置为当前线程，</span></span><br><span class="line">          <span class="type">Thread</span> <span class="variable">thisThread</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">          leader = thisThread;</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 阻塞到执行时间</span></span><br><span class="line">            available.awaitNanos(delay);</span><br><span class="line">          &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 设置leader = null，让其他线程执行available.awaitNanos(delay);</span></span><br><span class="line">            <span class="keyword">if</span> (leader == thisThread)</span><br><span class="line">              leader = <span class="literal">null</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// 如果leader不为空，则说明leader的线程正在执行available.awaitNanos(delay);</span></span><br><span class="line">    <span class="comment">// 如果queue[0] == null，说明队列为空</span></span><br><span class="line">    <span class="keyword">if</span> (leader == <span class="literal">null</span> &amp;&amp; queue[<span class="number">0</span>] != <span class="literal">null</span>)</span><br><span class="line">      available.signal();</span><br><span class="line">    lock.unlock();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>take方法是什么时候调用的呢？在ThreadPoolExecutor中，介绍了getTask方法，工作线程会循环地从workQueue中取任务。但定时任务却不同，因为如果一旦getTask方法取出了任务就开始执行了，而这时可能还没有到执行的时间，所以在take方法中，要保证只有在到指定的执行时间的时候任务才可以被取走。</p>
+<p>再来说一下leader的作用，这里的leader是为了减少不必要的定时等待，当一个线程成为leader时，它只等待下一个节点的时间间隔，但其它线程无限期等待。 leader线程必须在从take（）或poll（）返回之前signal其它线程，除非其他线程成为了leader。</p>
+<p>举例来说，如果没有leader，那么在执行take时，都要执行available.awaitNanos(delay)，假设当前线程执行了该段代码，这时还没有signal，第二个线程也执行了该段代码，则第二个线程也要被阻塞。多个这时执行该段代码是没有作用的，因为只能有一个线程会从take中返回queue[0]（因为有lock），其他线程这时再返回for循环执行时取的queue[0]，已经不是之前的queue[0]了，然后又要继续阻塞。</p>
+<p>所以，为了不让多个线程频繁的做无用的定时等待，这里增加了leader，如果leader不为空，则说明队列中第一个节点已经在等待出队，这时其它的线程会一直阻塞，减少了无用的阻塞（注意，在finally中调用了signal()来唤醒一个线程，而不是signalAll()）</p>
+<h2 id="poll-方法"><a href="#poll-方法" class="headerlink" title="poll 方法"></a><strong>poll 方法</strong></h2><p>下面看下poll方法，与take类似，但这里要提供超时功能：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> RunnableScheduledFuture&lt;?&gt; poll(<span class="type">long</span> timeout, TimeUnit unit) <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">  <span class="type">long</span> <span class="variable">nanos</span> <span class="operator">=</span> unit.toNanos(timeout);</span><br><span class="line">  <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line">  lock.lockInterruptibly();</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (; ; ) &#123;</span><br><span class="line">      RunnableScheduledFuture&lt;?&gt; first = queue[<span class="number">0</span>];</span><br><span class="line">      <span class="keyword">if</span> (first == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nanos &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          nanos = available.awaitNanos(nanos);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">delay</span> <span class="operator">=</span> first.getDelay(NANOSECONDS);</span><br><span class="line">        <span class="comment">// 如果delay &lt;= 0，说明已经到了任务执行的时间，返回。</span></span><br><span class="line">        <span class="keyword">if</span> (delay &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span> finishPoll(first);</span><br><span class="line">        <span class="comment">// 如果nanos &lt;= 0，说明已经超时，返回null</span></span><br><span class="line">        <span class="keyword">if</span> (nanos &lt;= <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        first = <span class="literal">null</span>; <span class="comment">// don&#x27;t retain ref while waiting</span></span><br><span class="line">        <span class="comment">// nanos &lt; delay 说明需要等待的时间小于任务要执行的延迟时间</span></span><br><span class="line">        <span class="comment">// leader != null 说明有其它线程正在对任务进行阻塞</span></span><br><span class="line">        <span class="comment">// 这时阻塞当前线程nanos纳秒</span></span><br><span class="line">        <span class="keyword">if</span> (nanos &lt; delay || leader != <span class="literal">null</span>)</span><br><span class="line">          nanos = available.awaitNanos(nanos);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="type">Thread</span> <span class="variable">thisThread</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">          leader = thisThread;</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 这里的timeLeft表示delay减去实际的等待时间</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">timeLeft</span> <span class="operator">=</span> available.awaitNanos(delay);</span><br><span class="line">            <span class="comment">// 计算剩余的等待时间 </span></span><br><span class="line">            nanos -= delay - timeLeft;</span><br><span class="line">          &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (leader == thisThread)</span><br><span class="line">              leader = <span class="literal">null</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (leader == <span class="literal">null</span> &amp;&amp; queue[<span class="number">0</span>] != <span class="literal">null</span>)</span><br><span class="line">      available.signal();</span><br><span class="line">    lock.unlock();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="finishPoll方法"><a href="#finishPoll方法" class="headerlink" title="finishPoll方法"></a><strong>finishPoll方法</strong></h2><p>当调用了take或者poll方法能够获取到任务时，会调用该方法进行返回：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> RunnableScheduledFuture&lt;?&gt; finishPoll(RunnableScheduledFuture&lt;?&gt; f) &#123;</span><br><span class="line">  <span class="comment">// 数组长度-1</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> --size;</span><br><span class="line">  <span class="comment">// 取出最后一个节点</span></span><br><span class="line">  RunnableScheduledFuture&lt;?&gt; x = queue[s];</span><br><span class="line">  queue[s] = <span class="literal">null</span>;</span><br><span class="line">  <span class="comment">// 长度不为0，则从第一个元素开始排序，目的是要把最后一个节点放到合适的位置上</span></span><br><span class="line">  <span class="keyword">if</span> (s != <span class="number">0</span>)</span><br><span class="line">    siftDown(<span class="number">0</span>, x);</span><br><span class="line">  setIndex(f, -<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">return</span> f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="siftDown方法"><a href="#siftDown方法" class="headerlink" title="siftDown方法"></a><strong>siftDown方法</strong></h2><p>siftDown方法使堆从k开始向下调整：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">siftDown</span><span class="params">(<span class="type">int</span> k, RunnableScheduledFuture&lt;?&gt; key)</span> &#123;</span><br><span class="line">  <span class="comment">// 根据二叉树的特性，数组长度除以2，表示取有子节点的索引</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">half</span> <span class="operator">=</span> size &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">  <span class="comment">// 判断索引为k的节点是否有子节点</span></span><br><span class="line">  <span class="keyword">while</span> (k &lt; half) &#123;</span><br><span class="line">    <span class="comment">// 左子节点的索引</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">child</span> <span class="operator">=</span> (k &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>;</span><br><span class="line">    RunnableScheduledFuture&lt;?&gt; c = queue[child];</span><br><span class="line">    <span class="comment">// 右子节点的索引</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">right</span> <span class="operator">=</span> child + <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 如果有右子节点并且左子节点的时间间隔大于右子节点，取时间间隔最小的节点</span></span><br><span class="line">    <span class="keyword">if</span> (right &lt; size &amp;&amp; c.compareTo(queue[right]) &gt; <span class="number">0</span>)</span><br><span class="line">      c = queue[child = right];</span><br><span class="line">    <span class="comment">// 如果key的时间间隔小于等于c的时间间隔，跳出循环</span></span><br><span class="line">    <span class="keyword">if</span> (key.compareTo(c) &lt;= <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="comment">// 设置要移除索引的节点为其子节点</span></span><br><span class="line">    queue[k] = c;</span><br><span class="line">    setIndex(c, k);</span><br><span class="line">    k = child;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 将key放入索引为k的位置</span></span><br><span class="line">  queue[k] = key;</span><br><span class="line">  setIndex(key, k);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>siftDown方法执行时包含两种情况，一种是没有子节点，一种是有子节点（根据half判断）。例如：</p>
+<p><strong>没有子节点的情况：</strong></p>
+<p>假设初始的堆如下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.68yabe9rhsk0.png"
+                      style="zoom:67%;" 
+                >
+
+<p>假设 k = 3 ，那么 k = half ，没有子节点，在执行siftDown方法时直接把索引为3的节点设置为数组的最后一个节点：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.4drinq6ml0u0.png"
+                      style="zoom:67%;" 
+                >
+
+<p><strong>有子节点的情况：</strong></p>
+<p>假设 k = 0 ，那么执行以下步骤：</p>
+<ol>
+<li><p>获取左子节点，child = 1 ，获取右子节点， right = 2 </p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.6fa8b1gca200.png"
+                      style="zoom:67%;" 
+                ></li>
+<li><p>由于 right &lt; size ，这时比较左子节点和右子节点时间间隔的大小，这里 3 &lt; 7 ，所以 c = queue[child] </p>
+</li>
+<li><p>比较key的时间间隔是否小于c的时间间隔，这里不满足，继续执行，把索引为k的节点设置为c，然后将k设置为child</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.15e9ocgab1mo.png"
+                      style="zoom:67%;" 
+                ></li>
+<li><p>因为 half = 3 ，k = 1 ，继续执行循环，这时的索引变为</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.1ie2kd56ha4g.png"
+                      style="zoom:67%;" 
+                ></li>
+<li><p>这时再经过如上判断后，将k的值为3，最终的结果如下</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.3gil8h48vcw0.png"
+                      style="zoom:67%;" 
+                ></li>
+<li><p>最后，如果在finishPoll方法中调用的话，会把索引为0的节点的索引设置为-1，表示已经删除了该节点，并且size也减了1，最后的结果如下</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.k6s1g7lunkw.png"
+                      style="zoom:67%;" 
+                ></li>
+</ol>
+<p>可见，siftdown方法在执行完并不是有序的，但可以发现，子节点的下次执行时间一定比父节点的下次执行时间要大，由于每次都会取左子节点和右子节点中下次执行时间最小的节点，所以还是可以保证在take和poll时出队是有序的。</p>
+<h2 id="remove方法"><a href="#remove方法" class="headerlink" title="remove方法"></a><strong>remove方法</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">remove</span><span class="params">(Object x)</span> &#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line">  lock.lock();</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexOf(x);</span><br><span class="line">    <span class="keyword">if</span> (i &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    setIndex(queue[i], -<span class="number">1</span>);</span><br><span class="line">    <span class="type">int</span> <span class="variable">s</span> <span class="operator">=</span> --size;</span><br><span class="line">    RunnableScheduledFuture&lt;?&gt; replacement = queue[s];</span><br><span class="line">    queue[s] = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (s != i) &#123;</span><br><span class="line">      <span class="comment">// 从i开始向下调整</span></span><br><span class="line">      siftDown(i, replacement);</span><br><span class="line">      <span class="comment">// 如果queue[i] == replacement，说明i是叶子节点</span></span><br><span class="line">      <span class="comment">// 如果是这种情况，不能保证子节点的下次执行时间比父节点的大</span></span><br><span class="line">      <span class="comment">// 这时需要进行一次向上调整</span></span><br><span class="line">      <span class="keyword">if</span> (queue[i] == replacement)</span><br><span class="line">        siftUp(i, replacement);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设初始的堆结构如下：</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.5sct1v3qvxg0.png"
+                      style="zoom:67%;" 
+                >
+
+<p>这时要删除8的节点，那么这时 k = 1，key为最后一个节点</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.765xnq5u1ms0.png"
+                      style="zoom:67%;" 
+                >
+
+<p>这时通过上文对siftDown方法的分析，siftDown方法执行后的结果如下</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.21z66wzr7jls.png"
+                      style="zoom:67%;" 
+                >
+
+<p>这时会发现，最后一个节点的值比父节点还要小，所以这里要执行一次siftUp方法来保证子节点的下次执行时间要比父节点的大，所以最终结果如下</p>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.5n7sjw9qd580.png"
+                      style="zoom:67%;" 
+                >
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/12/09/Java/Spring/spring%E6%95%B4%E4%BD%93%E8%84%89%E7%BB%9C/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">spring整体脉络</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/11/30/%E4%B8%AD%E9%97%B4%E4%BB%B6/Kafka/Kafka%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Kafka生产问题总结及性能优化实践</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ScheduledThreadPoolExecutor"><span class="nav-number">1.</span> <span class="nav-text">ScheduledThreadPoolExecutor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SchduledFutureTask"><span class="nav-number">1.1.</span> <span class="nav-text">SchduledFutureTask</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SchduledFutureTask%E4%B9%8Brun%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.1.1.</span> <span class="nav-text">SchduledFutureTask之run方法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reExecutePeriodic%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.2.</span> <span class="nav-text">reExecutePeriodic方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%8F%90%E4%BA%A4"><span class="nav-number">1.2.</span> <span class="nav-text">线程池任务的提交</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DelayedWorkQueue"><span class="nav-number">2.</span> <span class="nav-text">DelayedWorkQueue</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DelayedWorkQueue%E5%B1%9E%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">DelayedWorkQueue属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#offer%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">offer方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E6%8E%92%E5%BA%8Fsift%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">任务排序sift方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#take%E6%96%B9%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">take方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#poll-%E6%96%B9%E6%B3%95"><span class="nav-number">2.5.</span> <span class="nav-text">poll 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#finishPoll%E6%96%B9%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">finishPoll方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#siftDown%E6%96%B9%E6%B3%95"><span class="nav-number">2.7.</span> <span class="nav-text">siftDown方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#remove%E6%96%B9%E6%B3%95"><span class="nav-number">2.8.</span> <span class="nav-text">remove方法</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

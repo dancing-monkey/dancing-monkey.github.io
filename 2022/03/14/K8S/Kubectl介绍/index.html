@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            Kubectl介绍 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Kubectl介绍</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-03-14 17:12:20
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>1.9k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>7 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="kubectl概要"><a href="#kubectl概要" class="headerlink" title="kubectl概要"></a>kubectl概要</h1><p>kubectl控制Kubernetes集群管理器，使用Kubernetes命令行工具kubectl在Kubernetes上部署和管理应用程序。<br>使用kubectl，您可以检查群集资源;创建，删除和更新组件;看看你的新集群;并提出示例应用程序。</p>
+<h1 id="kubectl安装"><a href="#kubectl安装" class="headerlink" title="kubectl安装"></a>kubectl安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cat &gt;&gt; /etc/yum.repos.d/kubernetes.repo &lt;&lt; E</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">repo_gpgcheck=1</span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">E</span><br><span class="line">[root@master ~]# yum install kubectl-&lt;VERSION&gt; -y</span><br></pre></td></tr></table></figure>
+
+<h1 id="kubectl配置"><a href="#kubectl配置" class="headerlink" title="kubectl配置"></a>kubectl配置</h1><p>在开启了TLS的集群中，当与集群交互的时候少不了的是身份认证，使用kubeconfig(即证书)和token两种认证方式是最简单也最通用的认证方式。<br>kubectl只是个go编写的可执行程序，只要为kubectl配置合适的kubeconfig，就可以在集群中的任意节点使用。<br>kubectl默认会从<code>$HOME/.kube</code>目录下查找文件名为config的文件，也可以通过设置环境变量<code>KUBECONFIG</code>或者通过设置kubeconfig去指定其它kubeconfig文件。<br>kubeconfig就是为访问集群所作的配置。</p>
+<ul>
+<li><p>设置集群参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl config set-cluster kubernetes \</span><br><span class="line">	--certificate-authority=/etc/kubernetes/ssl/ca.pem \</span><br><span class="line">	--embed-certs=true \</span><br><span class="line">	--server=$&#123;KUBE_APISERVER&#125;</span><br></pre></td></tr></table></figure>
+
+<p>本段设置了所需要访问的集群的信息。使用set-cluster设置了需要访问的集群，如上为kubernetes ，这只是个名称</p>
+<ul>
+<li><code>--server</code> 指向apiserver</li>
+<li><code>--certificate-authority</code>设置该集群的公钥</li>
+<li><code>--embed-certs</code>为true表示将<code>--certificate-authority</code>写入到kubeconfig中</li>
+</ul>
+</li>
+<li><p>设置客户端认证参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl config set-credentials admin \</span><br><span class="line">	--client-certificate=/etc/kubernetes/ssl/admin.pem \</span><br><span class="line">	--embed-certs=true \</span><br><span class="line">	--client-key=/etc/kubernetes/ssl/admin-key.pem</span><br></pre></td></tr></table></figure>
+
+<p>本段主要设置用户的相关信息，主要是用户证书。如上的用户名为admin，证书为/etc/kubernetes/ssl/admin.pem，私钥为：/etc/kubernetes/ssl/admin key.pem。注意客户端的证书首先要经过集群CA的签署，否则不会被集群认可。此处使用的是ca认证方式，也可以使用token认证，如kubelet的TLS Boostrap机制下的bootstrapping使用的就是token认证方式。上述kubectl使用的是ca认证，不需要token字段。</p>
+</li>
+<li><p>设置上下文参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl config set-context kubernetes \</span><br><span class="line">	--cluster=kubernetes \</span><br><span class="line">	--user=admin</span><br></pre></td></tr></table></figure>
+
+<p>context定义了一个命名的cluster、user、namespace元组，用于使用提供的认证信息和命名空间将请求发送到指定的集群。<br>三个都是可选的，仅使用cluster、user、namespace之一指定上下文，或指定none。</p>
+<p>也可以修改默认的namespace名字<code>kubectl config set-context --current --namespace=kube-system</code></p>
+</li>
+<li><p>设置默认上下文</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl config use-context</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>kubectl config use-context kubernetes</code>来使用名为kubenetes的环境项来作为配置。如果配置了多个环境项，可以通过切换不同的环境项名字来访问到不同的集群环境。</p>
+</li>
+</ul>
+<p>生成的kubeconfig被保存到<code>~/.kube/config</code>文件，配置文件描述了集群、用户和上下文，可以通过<code>kubectl config view</code>查看相应配置参数</p>
+<blockquote>
+<p>使用kubeconfig还需要注意用户已经经过授权（如RBAC授权），上述例子中用户的证书中OU字段为<code>system:masters</code>，<code>kube-apiserver</code>预定义的<code>RoleBinding cluster-admin</code>将Group<code>system:masters</code>与Role<code>cluster-admin</code>绑定，该Role授予了调用<code>kube-apiserver</code>相关的API权限。</p>
+</blockquote>
+<h1 id="kubectl自动补全"><a href="#kubectl自动补全" class="headerlink" title="kubectl自动补全"></a>kubectl自动补全</h1><p>在使用kubectl命令工具，有些复杂，使用时记不住那么多api，可以使用命令补全工具</p>
+<ul>
+<li><p>安装bash-completion</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# yum install bash-completion -y</span><br><span class="line">[root@localhost kubeConfig]# source /usr/share/bash-completion/bash_completion</span><br></pre></td></tr></table></figure></li>
+<li><p>应用kubectl的completion到系统环境</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# source &lt;(kubectl completion bash)</span><br><span class="line">[root@localhost kubeConfig]# echo &quot;source &lt;(kubectl completion bash)&quot; &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure></li>
+<li><p>简化kubectl命令,设置别名</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# echo &quot;alias k=&#x27;kubectl&#x27;&quot; &gt;&gt; ~/.bashrc</span><br><span class="line">[root@localhost kubeConfig]# source ~/.bashrc</span><br></pre></td></tr></table></figure></li>
+<li><p>别名自动补全命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# echo &quot;complete -F __start_kubectl k&quot; &gt;&gt; ~/.bashrc</span><br><span class="line">[root@localhost kubeConfig]# source ~/.bashrc</span><br></pre></td></tr></table></figure></li>
+<li><p>设置切换名称空间别名</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# echo &quot;alias kns=&#x27;kubectl config set-context --current --namespace&#x27;&quot; &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="kubectl命令简介"><a href="#kubectl命令简介" class="headerlink" title="kubectl命令简介"></a><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/kubectl/" >kubectl命令简介<i class="fas fa-external-link-alt"></i></a></h1><h2 id="Basic-Commands-Beginner-基础命令-初级"><a href="#Basic-Commands-Beginner-基础命令-初级" class="headerlink" title="Basic Commands(Beginner)基础命令(初级)"></a>Basic Commands(Beginner)基础命令(初级)</h2><ul>
+<li><strong>kubectl create</strong> 通过yaml/json文件或者标准输入创建一个资源对象，支持很多子命令，例如namespace pod deployment service等</li>
+<li><strong>kubectl expose</strong> 将yaml/json文件中定义的资源对象的端口暴露给新的service资源对象</li>
+<li><strong>kubectl run</strong> 创建并运行一个或多个容器镜像</li>
+<li><strong>kubectl set</strong> 配置资9源对象设置特定功能</li>
+</ul>
+<h2 id="Basic-Commands-Intermediate-基础命令-中级"><a href="#Basic-Commands-Intermediate-基础命令-中级" class="headerlink" title="Basic Commands (Intermediate)基础命令(中级)"></a>Basic Commands (Intermediate)基础命令(中级)</h2><ul>
+<li><strong>kubectl explain</strong> 查看资源对象的详细信息(编写yaml的时候做一个提示<code>kubectl explain deployment</code>会出现deployment下面可以写的字段以及字段属性还有可以逐级使用)</li>
+<li><strong>kubectl get</strong> 获取一个或多个资源对象的信息</li>
+<li><strong>kubectl edit</strong> 使用默认编辑器编辑服务器上定义的资源对象</li>
+<li><strong>kubectl delete</strong> 通过yaml/json文件、标准输入、资源名称或标签选择器来删除资源</li>
+</ul>
+<h2 id="DeployCommands部署命令"><a href="#DeployCommands部署命令" class="headerlink" title="DeployCommands部署命令"></a>DeployCommands部署命令</h2><ul>
+<li><strong>kubectl rollout</strong> 资源管理对象的部署</li>
+<li><strong>kubectl rollout-update</strong> 使用rc(replication controller)来做滚动升级</li>
+<li><strong>kubectl scale</strong> 扩容或者缩容deployment,replicaset,replication,controller等</li>
+<li><strong>kubectl autoscale</strong> 自动设置在k8s系统中运行的pod数量(水平自动伸缩)</li>
+</ul>
+<h2 id="Cluster-Manager-Commands集群管理命令"><a href="#Cluster-Manager-Commands集群管理命令" class="headerlink" title="Cluster Manager Commands集群管理命令"></a>Cluster Manager Commands集群管理命令</h2><ul>
+<li><strong>kubectl cetificate</strong> 修改证书资源对象</li>
+<li><strong>kubectl cluster-info</strong> 查看集群信息</li>
+<li><strong>kubectl top</strong> 显示资源cpu内存存储使用情况</li>
+<li><strong>kubectl cordon</strong> 标记节点为不可调度</li>
+<li><strong>kubectl uncordon</strong> 指定节点为可调度</li>
+<li><strong>kubectl drain</strong> 安全的驱逐节点的所有pod</li>
+<li><strong>kubectl taint</strong> 将一个或多个节点设置为污点</li>
+</ul>
+<h2 id="Troubleshooting-and-Debugging-Commands-故障排查和调试命令"><a href="#Troubleshooting-and-Debugging-Commands-故障排查和调试命令" class="headerlink" title="Troubleshooting and Debugging Commands 故障排查和调试命令"></a>Troubleshooting and Debugging Commands 故障排查和调试命令</h2><ul>
+<li><strong>kubectl describe</strong> 显示一个或多个资源对象的详细信息</li>
+<li><strong>kubectl logs</strong> 输出pod资源对象中一个容器的日志</li>
+<li><strong>kubectl attach</strong> 连接到一个运行的容器</li>
+<li><strong>kubectl exec</strong> 在指定容器内执行命令</li>
+<li><strong>kubectl port-forward</strong> 将本机指定端口映射到pod资源对象的端口</li>
+<li><strong>kubectl proxy</strong> 将本机指定端口映射到kube-apiserver</li>
+<li><strong>kubectl cp</strong> 用于pod与主机交换文件</li>
+<li><strong>kubectl auth</strong> 检查验证</li>
+</ul>
+<h2 id="Advanced-Commands高级命令"><a href="#Advanced-Commands高级命令" class="headerlink" title="Advanced Commands高级命令"></a>Advanced Commands高级命令</h2><ul>
+<li><strong>kubectl diff</strong> 对比本地yaml/json文件与kube-apiserver中运行的配置文件是否有差异</li>
+<li><strong>kubectl apply</strong> 通过yaml/json文件 标准输入对资源进行配置更新或者创建</li>
+<li><strong>kubectl patch</strong> 通过patch方式修改资源对象字段（补丁式）</li>
+<li><strong>kubectl replace</strong> 通过yaml/json文件或者标准输入来替换资源对象</li>
+<li><strong>kubectl wait</strong> 在一个或者多个资源上等待条件达成</li>
+<li><strong>kubectl convert</strong> 转换yaml/json文件为不同的资源版本</li>
+<li><strong>kubectl kustomize</strong> 定制kubernetes配置</li>
+</ul>
+<h2 id="Settings-Commands-设置命令"><a href="#Settings-Commands-设置命令" class="headerlink" title="Settings Commands 设置命令"></a>Settings Commands 设置命令</h2><ul>
+<li><strong>kubectl label</strong> 增删改资源的标签</li>
+<li><strong>kubectl annotate</strong> 更新一个或者多个资源对象的注释(annotaion)信息</li>
+<li><strong>kubectl completion</strong> 命令自动补全</li>
+</ul>
+<h2 id="Other-Commands-其他命令"><a href="#Other-Commands-其他命令" class="headerlink" title="Other Commands 其他命令"></a>Other Commands 其他命令</h2><ul>
+<li><strong>kubectl config</strong> 管理kubeconfig配置文件</li>
+<li><strong>kubectl plugin</strong> 运行命令行插件功能</li>
+<li><strong>kubectl version</strong> 查看客户端服务端的系统版本信息</li>
+<li><strong>kubectl api-versions</strong> 列出当前kubernetes系统支持的资源组和资源版本表现形式为”group/version”</li>
+<li><strong>kubectl api-resources</strong> 列出当前kubernetes系统支持的resource资源列表</li>
+<li><strong>kubectl options</strong> 查看支持的参数列表</li>
+<li><strong>kubectl explain</strong> 列出支持的资源字段</li>
+</ul>
+<blockquote>
+<ul>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/kubectl/cheatsheet/" >kubectl小抄传送门<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+</blockquote>
+<h1 id="kubectl常用命令"><a href="#kubectl常用命令" class="headerlink" title="kubectl常用命令"></a>kubectl常用命令</h1><ul>
+<li><p>切换名称空间<br><code>kubectl config set-context --current --namespace=&lt;NAMESPACE&gt;</code></p>
+</li>
+<li><p>查看deployment各字段含义<br><code>kubectl explain deployment</code></p>
+</li>
+<li><p>查看所有的命令及命令简写<br><code>kubectl api-resources</code></p>
+</li>
+<li><p>查看当前kubectl上下文<br><code>kubectl config view</code></p>
+</li>
+<li><p>查看deployment滚动升级版本</p>
+<p><code>kubectl rollout history  deployment &lt;DEPLOYMENT_NAME&gt;</code></p>
+</li>
+<li><p>查看deployment滚动升级某个版本详细信息<br><code>kubectl rollout history deployment &lt;DEPLOYMENT_NAME&gt; --revision=&lt;REVISION_ID&gt;</code></p>
+</li>
+<li><p>deployment部署回滚</p>
+<p><code>kubectl rollout undo deployment &lt;DEPLOYMENT_NAME&gt; --revision=&lt;REVISION_ID&gt;</code></p>
+</li>
+<li><p>给某个节点打标签<br><code>kubectl label nodes &lt;YOUR_NODE_NAME&gt; &lt;LABEL_NAME&gt;=&lt;LABEL_VALUE&gt;</code></p>
+</li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2022/03/14/K8S/Kubeadm%E5%AE%89%E8%A3%85k8s/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Kubeadm安装k8s</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2022/03/14/K8S/k8s%E7%AE%80%E4%BB%8B/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">k8s简介</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E6%A6%82%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">kubectl概要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">kubectl安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">kubectl配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">4.</span> <span class="nav-text">kubectl自动补全</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E5%91%BD%E4%BB%A4%E7%AE%80%E4%BB%8B"><span class="nav-number">5.</span> <span class="nav-text">kubectl命令简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Commands-Beginner-%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4-%E5%88%9D%E7%BA%A7"><span class="nav-number">5.1.</span> <span class="nav-text">Basic Commands(Beginner)基础命令(初级)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic-Commands-Intermediate-%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4-%E4%B8%AD%E7%BA%A7"><span class="nav-number">5.2.</span> <span class="nav-text">Basic Commands (Intermediate)基础命令(中级)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DeployCommands%E9%83%A8%E7%BD%B2%E5%91%BD%E4%BB%A4"><span class="nav-number">5.3.</span> <span class="nav-text">DeployCommands部署命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster-Manager-Commands%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4"><span class="nav-number">5.4.</span> <span class="nav-text">Cluster Manager Commands集群管理命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Troubleshooting-and-Debugging-Commands-%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E5%92%8C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4"><span class="nav-number">5.5.</span> <span class="nav-text">Troubleshooting and Debugging Commands 故障排查和调试命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Advanced-Commands%E9%AB%98%E7%BA%A7%E5%91%BD%E4%BB%A4"><span class="nav-number">5.6.</span> <span class="nav-text">Advanced Commands高级命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Settings-Commands-%E8%AE%BE%E7%BD%AE%E5%91%BD%E4%BB%A4"><span class="nav-number">5.7.</span> <span class="nav-text">Settings Commands 设置命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Other-Commands-%E5%85%B6%E4%BB%96%E5%91%BD%E4%BB%A4"><span class="nav-number">5.8.</span> <span class="nav-text">Other Commands 其他命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">kubectl常用命令</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            spring面试题 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">spring面试题</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-08-09 14:00:10
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java/">Java</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E9%9D%A2%E8%AF%95/">面试</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/JVM/">JVM</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>1k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>3 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="BeanFactory与ApplicationContext有什么区别？"><a href="#BeanFactory与ApplicationContext有什么区别？" class="headerlink" title="BeanFactory与ApplicationContext有什么区别？"></a>BeanFactory与ApplicationContext有什么区别？</h1><p>他们都有生产bean的能力，ApplicationContext实现了BeanFactory,BeanFactory只能一个一个的注册beanDefinition，ApplicationContext在BeanFactory的基础上，可以进行包的扫描，配置的扫描等，可以整体转换为BeanDefinition.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>BeanFactory</code></th>
+<th><code>ApplicationContext</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bean Bean实例化/装配</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>集成的生命周期管理</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>自动注册 <code>BeanPostProcessor</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>自动注册 <code>BeanFactoryPostProcessor</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>便利的 <code>MessageSource</code> 访问 (国际化)</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>内置<code>ApplicationEvent</code> 发布机制</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>参考：<a class="link"   target="_blank" rel="noopener" href="https://github.com/DocsHome/spring-docs/blob/master/pages/core/IoC-container.md#context-introduction-ctx-vs-beanfactory" >https://github.com/DocsHome/spring-docs/blob/master/pages/core/IoC-container.md#context-introduction-ctx-vs-beanfactory<i class="fas fa-external-link-alt"></i></a></p>
+</blockquote>
+<h1 id="spring-IOC与DI有什么区别？"><a href="#spring-IOC与DI有什么区别？" class="headerlink" title="spring IOC与DI有什么区别？"></a>spring IOC与DI有什么区别？</h1><p>IOC是一种思想，将对象的创建与依赖进行解耦，DI是一种具体的实现。</p>
+<h1 id="spring-IOC的加载流程？"><a href="#spring-IOC的加载流程？" class="headerlink" title="spring IOC的加载流程？"></a>spring IOC的加载流程？</h1><h1 id="bean的生命周期"><a href="#bean的生命周期" class="headerlink" title="bean的生命周期"></a>bean的生命周期</h1><ol>
+<li><p>通过beanDefinition反射进行实例化，将对象创建出来</p>
+</li>
+<li><p>填充属性</p>
+</li>
+<li><p>初始化，执行 initMethod方法，这个过程会执行很多aware方法</p>
+</li>
+<li><p>将bean放入单例池</p>
+</li>
+</ol>
+<h1 id="spring怎么解决的循环依赖"><a href="#spring怎么解决的循环依赖" class="headerlink" title="spring怎么解决的循环依赖"></a>spring怎么解决的循环依赖</h1><h1 id="bean实例化的方式"><a href="#bean实例化的方式" class="headerlink" title="bean实例化的方式"></a>bean实例化的方式</h1><p>bean实例化有两种方式，一种为反射，一种为bean工厂，比如添加@component注解，这种为通过反射来生成的，而添加@bean则允许自己进行创建bean。</p>
+<h1 id="spring的扩展点"><a href="#spring的扩展点" class="headerlink" title="spring的扩展点"></a>spring的扩展点</h1><p>Bean工厂相关</p>
+<ol>
+<li>beanFactoryPostProcessor 可以修改定义的beanDefinition</li>
+<li>beanDefinitionRegistryPostProcessor 用来自定义注册beanDefinition</li>
+</ol>
+<p>Bean生命周期相关</p>
+<p>​    调用9个</p>
+<h1 id="spring-Bean加载流程？"><a href="#spring-Bean加载流程？" class="headerlink" title="spring Bean加载流程？"></a>spring Bean加载流程？</h1><p>   类生产成一个bean，先将类加载成bean定义</p>
+<ol>
+<li>读取到配置类</li>
+<li>通过配置类扫描所有的@Component等注解，并注册成beanDefinition</li>
+<li>applicationContext可以调用BeanFactoryPostProcessor去修改bean定义，可以调用BeanDefinitionRegistryPostProcessor来注册类</li>
+</ol>
+<h1 id="spring是怎样解决拿到的bean是不完整的？"><a href="#spring是怎样解决拿到的bean是不完整的？" class="headerlink" title="spring是怎样解决拿到的bean是不完整的？"></a>spring是怎样解决拿到的bean是不完整的？</h1><p>beanDefinition转换为bean并放入单例池中的过程为：</p>
+<ol>
+<li>获取BD </li>
+<li>通过BD实例化</li>
+<li>属性赋值</li>
+<li>执行初始化方法</li>
+<li>放入单例池中</li>
+</ol>
+<p>这样的过程有个问题，就是无法解决循环依赖，如果在实例化后就将bean放入单例池的话，因为属性还没进行赋值，其他线程在获取bean的时候可能获取到的是不完整的bean，spring解决这个问题的方式是添加了二级缓存，当bean实例化之后将其放入二级缓存中，最后当执行完初始化方法后再从二级缓存中删除并移动到一级缓存。</p>
+<h1 id="spring-Bean创建过程中，在哪儿创建的代理？"><a href="#spring-Bean创建过程中，在哪儿创建的代理？" class="headerlink" title="spring Bean创建过程中，在哪儿创建的代理？"></a>spring Bean创建过程中，在哪儿创建的代理？</h1><ol>
+<li>初始化之后</li>
+<li>出现循环依赖时，实例化的时候</li>
+</ol>
+<h1 id="二级缓存就可以解决循环依赖了，spring为什么还要用三级缓存？"><a href="#二级缓存就可以解决循环依赖了，spring为什么还要用三级缓存？" class="headerlink" title="二级缓存就可以解决循环依赖了，spring为什么还要用三级缓存？"></a>二级缓存就可以解决循环依赖了，spring为什么还要用三级缓存？</h1><h1 id="AOP什么情况下走JDK动态代理，什么情况下走CGLIB动态代理？"><a href="#AOP什么情况下走JDK动态代理，什么情况下走CGLIB动态代理？" class="headerlink" title="AOP什么情况下走JDK动态代理，什么情况下走CGLIB动态代理？"></a>AOP什么情况下走JDK动态代理，什么情况下走CGLIB动态代理？</h1><h1 id="JDK动态代理与CGLIB动态代理有什么区别？"><a href="#JDK动态代理与CGLIB动态代理有什么区别？" class="headerlink" title="JDK动态代理与CGLIB动态代理有什么区别？"></a>JDK动态代理与CGLIB动态代理有什么区别？</h1><h1 id="AOP动态代理-执行顺序是什么？-为什么要排序？"><a href="#AOP动态代理-执行顺序是什么？-为什么要排序？" class="headerlink" title="AOP动态代理 执行顺序是什么？ 为什么要排序？"></a>AOP动态代理 执行顺序是什么？ 为什么要排序？</h1><p>异常通知-&gt;返回通知-&gt;后置通知-&gt;前置通知-&gt;目标方法</p>
+<h1 id="AOP的原理是什么？"><a href="#AOP的原理是什么？" class="headerlink" title="AOP的原理是什么？"></a>AOP的原理是什么？</h1><h1 id="spring容器中可以注入springMvc容器的bean吗？"><a href="#spring容器中可以注入springMvc容器的bean吗？" class="headerlink" title="spring容器中可以注入springMvc容器的bean吗？"></a>spring容器中可以注入springMvc容器的bean吗？</h1><h1 id="springMVC运行流程是什么？"><a href="#springMVC运行流程是什么？" class="headerlink" title="springMVC运行流程是什么？"></a>springMVC运行流程是什么？</h1><h1 id="mybatis-mapper可以有几种设置方式？"><a href="#mybatis-mapper可以有几种设置方式？" class="headerlink" title="mybatis mapper可以有几种设置方式？"></a>mybatis mapper可以有几种设置方式？</h1><h1 id="装饰器与代理模式都是增强，有什么区别？"><a href="#装饰器与代理模式都是增强，有什么区别？" class="headerlink" title="装饰器与代理模式都是增强，有什么区别？"></a>装饰器与代理模式都是增强，有什么区别？</h1><p>代理注重将被代理的类隐藏，装饰器注重增强</p>
+<h1 id="mybatis一二级缓存的原理"><a href="#mybatis一二级缓存的原理" class="headerlink" title="mybatis一二级缓存的原理"></a>mybatis一二级缓存的原理</h1><p>二级缓存：装饰器+责任链，最外面的为synchonizedCache-&gt;loggingCache-&gt;serualizedCache-&gt;perpetualCache</p>
+<h1 id="mybatis设计模式"><a href="#mybatis设计模式" class="headerlink" title="mybatis设计模式"></a>mybatis设计模式</h1><h1 id="mybatis动态sql是怎么解析的"><a href="#mybatis动态sql是怎么解析的" class="headerlink" title="mybatis动态sql是怎么解析的"></a>mybatis动态sql是怎么解析的</h1><p>将sql解析成一个月给的sqlNode,通过责任链的方式，调用每种类型的sqlNode的解析方式，最后拼接成一个可执行sql</p>
+<h1 id="mybatis插件"><a href="#mybatis插件" class="headerlink" title="mybatis插件"></a>mybatis插件</h1><h1 id="mybatis执行器有几种"><a href="#mybatis执行器有几种" class="headerlink" title="mybatis执行器有几种"></a>mybatis执行器有几种</h1><h1 id="spring整合mybatis原理"><a href="#spring整合mybatis原理" class="headerlink" title="spring整合mybatis原理"></a>spring整合mybatis原理</h1><h1 id="mybatis怎么继承spring声明式事务的？"><a href="#mybatis怎么继承spring声明式事务的？" class="headerlink" title="mybatis怎么继承spring声明式事务的？"></a>mybatis怎么继承spring声明式事务的？</h1><p>mybatis实际上就是拿到的spring的事务，spring在开始事务的时候，会创建一个connection放在事务同步管理器的resource里，在构建sqlSSessionFactoryBean的时候，会创建一个mybatis的适配类springManagedTransactionFactory,当mybatis获取Connection就会调用springManagedTransactionFactory.getconnect方法，而这个connection就是事务管理器中的connection</p>
+<h1 id="mybatis的mapper底层是什么？"><a href="#mybatis的mapper底层是什么？" class="headerlink" title="mybatis的mapper底层是什么？"></a>mybatis的mapper底层是什么？</h1><p>动态代理啊</p>
+<h1 id="mapper是怎么注入到ioc容器中得？"><a href="#mapper是怎么注入到ioc容器中得？" class="headerlink" title="mapper是怎么注入到ioc容器中得？"></a>mapper是怎么注入到ioc容器中得？</h1>
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/08/26/Java/Spring/springMvc%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">springMvc执行流程与源码解析</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/03/03/Linux/Docker%E5%91%BD%E4%BB%A4/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Docker命令</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BeanFactory%E4%B8%8EApplicationContext%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">BeanFactory与ApplicationContext有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring-IOC%E4%B8%8EDI%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">spring IOC与DI有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring-IOC%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">spring IOC的加载流程？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">4.</span> <span class="nav-text">bean的生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E7%9A%84%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96"><span class="nav-number">5.</span> <span class="nav-text">spring怎么解决的循环依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">bean实例化的方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring%E7%9A%84%E6%89%A9%E5%B1%95%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">spring的扩展点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring-Bean%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">8.</span> <span class="nav-text">spring Bean加载流程？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring%E6%98%AF%E6%80%8E%E6%A0%B7%E8%A7%A3%E5%86%B3%E6%8B%BF%E5%88%B0%E7%9A%84bean%E6%98%AF%E4%B8%8D%E5%AE%8C%E6%95%B4%E7%9A%84%EF%BC%9F"><span class="nav-number">9.</span> <span class="nav-text">spring是怎样解决拿到的bean是不完整的？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring-Bean%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E5%9C%A8%E5%93%AA%E5%84%BF%E5%88%9B%E5%BB%BA%E7%9A%84%E4%BB%A3%E7%90%86%EF%BC%9F"><span class="nav-number">10.</span> <span class="nav-text">spring Bean创建过程中，在哪儿创建的代理？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%E5%B0%B1%E5%8F%AF%E4%BB%A5%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E4%BA%86%EF%BC%8Cspring%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E8%A6%81%E7%94%A8%E4%B8%89%E7%BA%A7%E7%BC%93%E5%AD%98%EF%BC%9F"><span class="nav-number">11.</span> <span class="nav-text">二级缓存就可以解决循环依赖了，spring为什么还要用三级缓存？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E8%B5%B0JDK%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%EF%BC%8C%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E8%B5%B0CGLIB%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%EF%BC%9F"><span class="nav-number">12.</span> <span class="nav-text">AOP什么情况下走JDK动态代理，什么情况下走CGLIB动态代理？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JDK%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E4%B8%8ECGLIB%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">13.</span> <span class="nav-text">JDK动态代理与CGLIB动态代理有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86-%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%8E%92%E5%BA%8F%EF%BC%9F"><span class="nav-number">14.</span> <span class="nav-text">AOP动态代理 执行顺序是什么？ 为什么要排序？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">15.</span> <span class="nav-text">AOP的原理是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%8F%AF%E4%BB%A5%E6%B3%A8%E5%85%A5springMvc%E5%AE%B9%E5%99%A8%E7%9A%84bean%E5%90%97%EF%BC%9F"><span class="nav-number">16.</span> <span class="nav-text">spring容器中可以注入springMvc容器的bean吗？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#springMVC%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">17.</span> <span class="nav-text">springMVC运行流程是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis-mapper%E5%8F%AF%E4%BB%A5%E6%9C%89%E5%87%A0%E7%A7%8D%E8%AE%BE%E7%BD%AE%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">18.</span> <span class="nav-text">mybatis mapper可以有几种设置方式？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%85%E9%A5%B0%E5%99%A8%E4%B8%8E%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E9%83%BD%E6%98%AF%E5%A2%9E%E5%BC%BA%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">19.</span> <span class="nav-text">装饰器与代理模式都是增强，有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E4%B8%80%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">20.</span> <span class="nav-text">mybatis一二级缓存的原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">21.</span> <span class="nav-text">mybatis设计模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E5%8A%A8%E6%80%81sql%E6%98%AF%E6%80%8E%E4%B9%88%E8%A7%A3%E6%9E%90%E7%9A%84"><span class="nav-number">22.</span> <span class="nav-text">mybatis动态sql是怎么解析的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E6%8F%92%E4%BB%B6"><span class="nav-number">23.</span> <span class="nav-text">mybatis插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E6%89%A7%E8%A1%8C%E5%99%A8%E6%9C%89%E5%87%A0%E7%A7%8D"><span class="nav-number">24.</span> <span class="nav-text">mybatis执行器有几种</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring%E6%95%B4%E5%90%88mybatis%E5%8E%9F%E7%90%86"><span class="nav-number">25.</span> <span class="nav-text">spring整合mybatis原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E6%80%8E%E4%B9%88%E7%BB%A7%E6%89%BFspring%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%EF%BC%9F"><span class="nav-number">26.</span> <span class="nav-text">mybatis怎么继承spring声明式事务的？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mybatis%E7%9A%84mapper%E5%BA%95%E5%B1%82%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">27.</span> <span class="nav-text">mybatis的mapper底层是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mapper%E6%98%AF%E6%80%8E%E4%B9%88%E6%B3%A8%E5%85%A5%E5%88%B0ioc%E5%AE%B9%E5%99%A8%E4%B8%AD%E5%BE%97%EF%BC%9F"><span class="nav-number">28.</span> <span class="nav-text">mapper是怎么注入到ioc容器中得？</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

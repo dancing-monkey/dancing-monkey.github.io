@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            Kubeadm安装k8s |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Kubeadm安装k8s</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-03-14 17:12:20
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>7.5k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>40 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><p>通过虚拟机进行部署，网络模式为NAT，共分为三台虚拟机，各虚拟机环境信息如下：</p>
+<ul>
+<li>centos版本：<code>CentOS Linux release 8.5.2111</code></li>
+<li>k8s版本：<code>1.21.5</code></li>
+<li>docker-ce版本：<code>20.10.8</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>hostName</th>
+<th>cpu</th>
+<th>memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.8.2</td>
+<td>master</td>
+<td>4</td>
+<td>8G</td>
+</tr>
+<tr>
+<td>192.168.8.3</td>
+<td>slave1</td>
+<td>2</td>
+<td>4G</td>
+</tr>
+<tr>
+<td>192.168.8.4</td>
+<td>slave2</td>
+<td>2</td>
+<td>4G</td>
+</tr>
+</tbody></table>
+<h2 id="修改yum源"><a href="#修改yum源" class="headerlink" title="修改yum源"></a>修改yum源</h2><p><strong>清华大学镜像源安装：<code>https://mirror.tuna.tsinghua.edu.cn/help/centos/</code></strong></p>
+<p><strong>CentOS 8 （非 Stream 版）已提前进入 EOL 停止服务阶段，因此镜像已被官方移动。</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sed -e &#x27;s|^mirrorlist=|#mirrorlist=|g&#x27; \</span><br><span class="line">-e &#x27;s|^#baseurl=http://mirror.centos.org/$contentdir|baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/centos|g&#x27; \</span><br><span class="line">-i /etc/yum.repos.d/CentOS-*.repo</span><br></pre></td></tr></table></figure>
+
+<p>最后，更新软件包缓存</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum makecache  &amp; yum update -y</span><br></pre></td></tr></table></figure>
+
+<h2 id="K8S环境准备"><a href="#K8S环境准备" class="headerlink" title="K8S环境准备"></a>K8S环境准备</h2><h3 id="master-amp-node-以master为例"><a href="#master-amp-node-以master为例" class="headerlink" title="master&amp;node(以master为例)"></a>master&amp;node(以master为例)</h3><ul>
+<li><p>修改<code>/etc/hosts</code>文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cat &gt;&gt; /etc/hosts &lt;&lt; E</span><br><span class="line">192.198.8.2 master</span><br><span class="line">E</span><br></pre></td></tr></table></figure></li>
+<li><p>关闭swap分区，也可以在安装系统时，手动分盘将swap分区删除。如果不关闭，默认配置的kubelet将无法启动</p>
+<ol>
+<li><code>swapoff -a</code></li>
+<li>删除 <code>/etc/fstab swap swap defaults 0 0 </code>这一行或者注释掉这一行</li>
+</ol>
+</li>
+<li><p>禁用<code>SELINUX</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# setenforce 0</span><br><span class="line">[root@master ~]# sed -i &quot;s/^SELINUX=enforcing/SELINUX=disabled/g&quot; /etc/sysconfig/selinux</span><br><span class="line">[root@master ~]# sed -i &quot;s/^SELINUX=enforcing/SELINUX=disabled/g&quot; /etc/selinux/config</span><br><span class="line">[root@master ~]# sed -i &quot;s/^SELINUX=permissive/SELINUX=disabled/g&quot; /etc/sysconfig/selinux</span><br><span class="line">[root@master ~]# sed -i &quot;s/^SELINUX=permissive/SELINUX=disabled/g&quot; /etc/selinux/config</span><br></pre></td></tr></table></figure></li>
+<li><p>关闭防火墙</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# systemctl stop firewalld.service</span><br><span class="line">[root@master ~]# systemctl disable firewalld.service</span><br><span class="line">Removed /etc/systemd/system/multi-user.target.wants/firewalld.service.</span><br><span class="line">Removed /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service.</span><br><span class="line">[root@master ~]# systemctl status firewalld.service</span><br><span class="line">● firewalld.service - firewalld - dynamic firewall daemon</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled; vendor preset: enabled)</span><br><span class="line">   Active: inactive (dead)</span><br><span class="line">     Docs: man:firewalld(1)</span><br><span class="line"></span><br><span class="line">Mar 28 01:04:37 master systemd[1]: Stopping firewalld - dynamic firewall daemon...</span><br><span class="line">Mar 28 01:04:37 master systemd[1]: firewalld.service: Succeeded.</span><br><span class="line">Mar 28 01:04:37 master systemd[1]: Stopped firewalld - dynamic firewall daemon.</span><br><span class="line">Mar 28 01:04:37 master systemd[1]: Starting firewalld - dynamic firewall daemon...</span><br><span class="line">Mar 28 01:04:37 master systemd[1]: Started firewalld - dynamic firewall daemon.</span><br><span class="line">Mar 28 01:04:37 master firewalld[10697]: WARNING: AllowZoneDrifting is enabled. This is considered an insecure configura&gt;</span><br><span class="line">Mar 28 01:05:01 master firewalld[10697]: WARNING: AllowZoneDrifting is enabled. This is considered an insecure configura&gt;</span><br><span class="line">Mar 28 05:23:12 master systemd[1]: Stopping firewalld - dynamic firewall daemon...</span><br><span class="line">Mar 28 05:23:14 master systemd[1]: firewalld.service: Succeeded.</span><br><span class="line">Mar 28 05:23:14 master systemd[1]: Stopped firewalld - dynamic firewall daemon.</span><br><span class="line">lines 1-15/15 (END)</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>创建k8s配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cat &gt;&gt;/etc/sysctl.d/k8s.conf &lt;&lt; E</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line">net.ipv4.ip_forward = 1</span><br><span class="line">E</span><br></pre></td></tr></table></figure>
+
+<p>使命令生效</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# modprobe br_netfilter</span><br><span class="line">[root@master ~]# sysctl -p /etc/sysctl.d/k8s.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>加载<code>ipvs</code>模块</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# modprobe -- ip_vs</span><br><span class="line">[root@master ~]# modprobe -- ip_vs_rr</span><br><span class="line">[root@master ~]# modprobe -- ip_vs_wrr</span><br><span class="line">[root@master ~]# modprobe -- ip_vs_sh</span><br><span class="line">[root@master ~]# modprobe -- nf_conntrack</span><br><span class="line">[root@master ~]# yum install -y ipvsadm ipset</span><br></pre></td></tr></table></figure></li>
+<li><p>安装Docker</p>
+<p>添加yum源</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# yum install -y yum-utils device-mapper-persistent-data lvm2</span><br><span class="line">[root@master ~]# yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line">[root@master ~]# yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span><br><span class="line">[root@master ~]# yum makecache timer</span><br></pre></td></tr></table></figure>
+
+<p>查看docker-ce版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# yum list docker-ce.x86_64 --showduplicates |sort -r</span><br><span class="line">docker-ce.x86_64                3:20.10.9-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.8-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.7-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.6-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.5-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.4-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.3-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.2-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.14-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.1-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.13-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.12-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.11-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.10-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:20.10.0-3.el8                 docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:19.03.15-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:19.03.14-3.el8                docker-ce-stable</span><br><span class="line">docker-ce.x86_64                3:19.03.13-3.el8                docker-ce-stable</span><br></pre></td></tr></table></figure>
+
+<p>安装docker</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# yum remove docker-ce docker-ce-cli containerd.io -y</span><br><span class="line">[root@master ~]# yum remove podman -y</span><br><span class="line">[root@master ~]# yum install docker-ce-20.10.8 docker-ce-cli-20.10.8 containerd.io-1.4.10 -y --allowerasing</span><br><span class="line">[root@master ~]# systemctl start docker</span><br><span class="line">[root@master ~]# systemctl enable docker --now</span><br></pre></td></tr></table></figure>
+
+<p>设置docker镜像加速器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# vi /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">&quot;registry-mirrors&quot;: [&quot;https://registry.cn-hangzhou.aliyuncs.com&quot;],</span><br><span class="line">&quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;]</span><br><span class="line">&#125;</span><br><span class="line">[root@master ~]# systemctl daemon-reload</span><br><span class="line">[root@master ~]# systemctl restart docker</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Kubeadm-Kubelet-Kubectl-安装-master-and-node"><a href="#Kubeadm-Kubelet-Kubectl-安装-master-and-node" class="headerlink" title="Kubeadm, Kubelet, Kubectl 安装 (master and node)"></a>Kubeadm, Kubelet, Kubectl 安装 (master and node)</h2><p>kubeadm 是 kubernetes 的集群安装工具，能够快速安装 kubernetes 集群。 能完成下面的拓扑安装。</p>
+<ul>
+<li>单节点k8s(1+0)</li>
+<li>单master 和多node的k8s系统(1+n)</li>
+<li>Mater HA 和多node的k8s系统(m*1+n)</li>
+</ul>
+<p>kubeadm在整个 K8S 架构里的位置</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20220328/image.5jywzsj0m2c0.png"
+                     
+                ></p>
+<ul>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/" >kubeadm init<i class="fas fa-external-link-alt"></i></a> 启动一个Kubernetes主节点</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-join/" >kubeadm join<i class="fas fa-external-link-alt"></i></a> 启动一个Kubernetes工作节点并将其加入到集群</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-upgrade/" >kubeadm upgrade<i class="fas fa-external-link-alt"></i></a> 更新一个Kubernetes集群到新版本</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-config/" >kubeadm config<i class="fas fa-external-link-alt"></i></a> 如果你使用<code>kubeadm v1.7.x</code>或者更低版本，你需要对你的集 群做一些配置以便使用<code>kubeadm upgrade</code>命令</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-reset/" >kubeadm reset<i class="fas fa-external-link-alt"></i></a> 还原之前使用<code>kubeadm init</code>或者<code>kubeadm join</code>对节点产生的改变</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-token/" >kubeadm token<i class="fas fa-external-link-alt"></i></a> 用来管理令牌，https</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-version/" >kubeadm version<i class="fas fa-external-link-alt"></i></a> 查看Kubernetes版本信息</li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-alpha/" >kubeadm alpha<i class="fas fa-external-link-alt"></i></a> 预览一组可用的新功能以便从社区搜集反馈</li>
+</ul>
+<h3 id="添加yum源并安装"><a href="#添加yum源并安装" class="headerlink" title="添加yum源并安装"></a>添加yum源并安装</h3><p><strong>kubeadm、kubectl、kubelet需要保证版本一致</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# cat &gt;&gt; /etc/yum.repos.d/kubernetes.repo &lt;&lt; E</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">repo_gpgcheck=1</span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">E</span><br><span class="line">[root@master ~]# yum list kubeadm --showduplicates -y |sort -r</span><br><span class="line">[root@master ~]# yum remove kubeadm.x86_64 kubectl.x86_64 kubelet.x86_64 -y</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">[root@master ~]<span class="comment"># yum install kubeadm-1.18.3 kubectl-1.18.3 kubelet-1.18.3 -y</span></span></span><br><span class="line">[root@master ~]# yum install kubeadm-1.21.5 kubectl-1.21.5 kubelet-1.21.5 -y</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动kubelet"><a href="#启动kubelet" class="headerlink" title="启动kubelet"></a>启动kubelet</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# systemctl daemon-reload</span><br><span class="line">[root@master ~]# systemctl start kubelet.service</span><br><span class="line">[root@master ~]# systemctl enable kubelet.service</span><br><span class="line">Created symlink /etc/systemd/system/multi-user.target.wants/kubelet.service → /usr/lib/systemd/system/kubelet.service.</span><br><span class="line">[root@master ~]# systemctl status kubelet.service</span><br><span class="line">● kubelet.service - kubelet: The Kubernetes Node Agent</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/kubelet.service; enabled; vendor preset: disabled)</span><br><span class="line">  Drop-In: /usr/lib/systemd/system/kubelet.service.d</span><br><span class="line">           └─10-kubeadm.conf</span><br><span class="line">   Active: activating (auto-restart) (Result: exit-code) since Mon 2022-03-28 22:36:53 EDT; 2s ago</span><br><span class="line">     Docs: https://kubernetes.io/docs/</span><br><span class="line">  Process: 6932 ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS (code=exited&gt;</span><br><span class="line"> Main PID: 6932 (code=exited, status=1/FAILURE)</span><br><span class="line"></span><br><span class="line">Mar 28 22:36:53 master systemd[1]: kubelet.service: Main process exited, code=exited, status=1/FAILURE</span><br><span class="line">Mar 28 22:36:53 master systemd[1]: kubelet.service: Failed with result &#x27;exit-code&#x27;.</span><br></pre></td></tr></table></figure>
+
+<h1 id="集群安装"><a href="#集群安装" class="headerlink" title="集群安装"></a>集群安装</h1><h2 id="命令行安装k8s"><a href="#命令行安装k8s" class="headerlink" title="命令行安装k8s"></a>命令行安装k8s</h2><p>所有节点安装之前记得先把镜像准备好，否则将无法启动，也不报错。<strong>集群只需要master进行安装，工作节点不需要进行安装，master安装好后需要记录安装成功后的信息。</strong></p>
+<h3 id="待准备参数"><a href="#待准备参数" class="headerlink" title="待准备参数"></a>待准备参数</h3><ul>
+<li><p><code>--pod-network-cidr</code><br>pod网络地址(相当于docker网络地址),可以确定参数：<code>--pod-network-cidr=172.17.0.1/16</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# ifconfig</span><br><span class="line">docker0: flags=4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255</span><br><span class="line">        ether 02:42:86:93:f9:48  txqueuelen 0  (Ethernet)</span><br><span class="line">        RX packets 0  bytes 0 (0.0 B)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 0  bytes 0 (0.0 B)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure></li>
+<li><p><code>--service-cidr</code><br>service地址，用来service寻址用：<code>--service-cidr=172.18.0.1/16</code> <strong>注意，pod网段跟service网段不能重复</strong></p>
+</li>
+<li><p><code>--image-repository</code><br>镜像仓库：<code>--image-repository registry.aliyuncs.com/google_containers</code></p>
+</li>
+<li><p><code>--apiserver-advertise-address</code></p>
+<p>本机地址：<code>--apiserver-advertise-address=192.168.8.2</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# ifconfig</span><br><span class="line">ens33: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 192.168.8.2  netmask 255.255.255.0  broadcast 192.168.8.255</span><br><span class="line">        inet6 fe80::dd55:58a3:1169:d0e6  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 00:0c:29:4a:4d:94  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 196430  bytes 234256981 (223.4 MiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 84288  bytes 10496655 (10.0 MiB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>安装命令：<code>kubeadm init --image-repository registry.aliyuncs.com/google_containers --kubernetes-version=v1.21.5 --pod-network-cidr=172.17.0.1/16 --service-cidr=172.18.0.1/16 --apiserver-advertise-address=192.168.8.2</code></p>
+<p><strong>安装成功后需要记录token</strong>并执行以下脚本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">执行此三个命令</span></span><br><span class="line">  mkdir -p $HOME/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line">Alternatively, if you are the root user, you can run:</span><br><span class="line"></span><br><span class="line">  export KUBECONFIG=/etc/kubernetes/admin.conf</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">记录此命令</span></span><br><span class="line">kubeadm join 192.168.8.2:6443 --token xxffo1.ii2aihfyhisk2j01 \</span><br><span class="line">        --discovery-token-ca-cert-hash sha256:9dff6188ab35c6cdee9465e00dd1f5c14c413763e35405258026592fa82f0269</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="修改负载均衡模式"><a href="#修改负载均衡模式" class="headerlink" title="修改负载均衡模式"></a>修改负载均衡模式</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@master manifests]# kubectl describe cm -n kube-system kube-proxy</span><br><span class="line">...</span><br><span class="line">kind: KubeProxyConfiguration</span><br><span class="line">metricsBindAddress: &quot;&quot;</span><br><span class="line">mode: &quot;&quot; #此项为待修改项</span><br><span class="line">nodePortAddresses: null</span><br><span class="line">oomScoreAdj: null</span><br><span class="line">portRange: &quot;&quot;</span><br><span class="line">showHiddenMetricsForVersion: &quot;&quot;</span><br><span class="line">udpIdleTimeout: 0s</span><br><span class="line">winkernel:</span><br><span class="line">  enableDSR: false</span><br><span class="line">  networkName: &quot;&quot;</span><br><span class="line">  sourceVip: &quot;&quot;</span><br><span class="line">kubeconfig.conf:</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl edit cm -n kube-system kube-proxy</span><br><span class="line">...</span><br><span class="line">kind: KubeProxyConfiguration</span><br><span class="line">metricsBindAddress: &quot;&quot;</span><br><span class="line">mode: &quot;ipvs&quot; #修改为ipvs</span><br><span class="line">nodePortAddresses: null</span><br><span class="line">oomScoreAdj: null</span><br><span class="line">portRange: &quot;&quot;</span><br><span class="line">showHiddenMetricsForVersion: &quot;&quot;</span><br><span class="line">udpIdleTimeout: 0s</span><br><span class="line">winkernel:</span><br><span class="line">  enableDSR: false</span><br><span class="line">  networkName: &quot;&quot;</span><br><span class="line">  sourceVip: &quot;&quot;</span><br><span class="line">kubeconfig.conf:</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装网络插件POD-network-Flannel-DamonSet"><a href="#安装网络插件POD-network-Flannel-DamonSet" class="headerlink" title="安装网络插件POD network Flannel (DamonSet)"></a>安装网络插件POD network Flannel (DamonSet)</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</span><br><span class="line">[root@master ~]# kubectl apply -f kube-flannel.yml</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果有多网卡的情况，需要配置具体网卡</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">containers:</span><br><span class="line">      - name: kube-flannel</span><br><span class="line">       #image: flannelcni/flannel:v0.17.0 for ppc64le and mips64le (dockerhub limitations may apply)</span><br><span class="line">        image: rancher/mirrored-flannelcni-flannel:v0.17.0</span><br><span class="line">        command:</span><br><span class="line">        - /opt/bin/flanneld</span><br><span class="line">        args:</span><br><span class="line">        - --ip-masq</span><br><span class="line">        - --kube-subnet-mgr</span><br><span class="line">        - --iface=&lt;网卡名称&gt; #需要添加此项</span><br><span class="line">        resources:</span><br><span class="line">          requests:</span><br><span class="line">            cpu: &quot;100m&quot;</span><br><span class="line">            memory: &quot;50Mi&quot;</span><br><span class="line">          limits:</span><br><span class="line">            cpu: &quot;100m&quot;</span><br><span class="line">            memory: &quot;50Mi&quot;</span><br><span class="line">        securityContext:</span><br><span class="line">          privileged: false</span><br><span class="line">          capabilities:</span><br><span class="line">            add: [&quot;NET_ADMIN&quot;, &quot;NET_RAW&quot;]</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>安装好flannel后，集群状态正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get pod -A</span><br><span class="line">NAMESPACE     NAME                             READY   STATUS    RESTARTS   AGE</span><br><span class="line">kube-system   coredns-59d64cd4d4-2nqw9         1/1     Running   0          16h</span><br><span class="line">kube-system   coredns-59d64cd4d4-glgcv         1/1     Running   0          16h</span><br><span class="line">kube-system   etcd-master                      1/1     Running   1          16h</span><br><span class="line">kube-system   kube-apiserver-master            1/1     Running   1          16h</span><br><span class="line">kube-system   kube-controller-manager-master   1/1     Running   1          16h</span><br><span class="line">kube-system   kube-flannel-ds-5wlkj            1/1     Running   0          4m52s</span><br><span class="line">kube-system   kube-proxy-rdxvn                 1/1     Running   1          16h</span><br><span class="line">kube-system   kube-scheduler-master            1/1     Running   1          16h</span><br><span class="line">[root@master ~]# kubectl get node</span><br><span class="line">NAME     STATUS   ROLES                  AGE   VERSION</span><br><span class="line">master   Ready    control-plane,master   16h   v1.21.5</span><br><span class="line">[root@master ~]# systemctl status kubelet</span><br><span class="line">● kubelet.service - kubelet: The Kubernetes Node Agent</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/kubelet.service; enabled; vendor preset: disabled)</span><br><span class="line">  Drop-In: /usr/lib/systemd/system/kubelet.service.d</span><br><span class="line">           └─10-kubeadm.conf</span><br><span class="line">   Active: active (running) since Tue 2022-03-29 21:31:06 EDT; 40min ago</span><br><span class="line">     Docs: https://kubernetes.io/docs/</span><br><span class="line"> Main PID: 1018 (kubelet)</span><br><span class="line">    Tasks: 15 (limit: 49304)</span><br><span class="line">   Memory: 155.6M</span><br><span class="line">   CGroup: /system.slice/kubelet.service</span><br><span class="line">           └─1018 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --network-plugin=cni --pod-infra-container-image=registry.a&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="卸载安装"><a href="#卸载安装" class="headerlink" title="卸载安装"></a>卸载安装</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubeadm reset</span><br><span class="line">[root@master ~]# ifconfig cni0 down &amp;&amp; ip link delete cni0</span><br><span class="line">[root@master ~]# ifconfig flannel.1 down &amp;&amp; ip link delete flannel.1</span><br><span class="line">[root@master ~]# rm -rf /var/lib/cni</span><br><span class="line">[root@master ~]# rm -rf /etc/kubenetes</span><br><span class="line">[root@master ~]# rm -rf /root/.kube/config</span><br><span class="line">[root@master ~]# rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
+
+<h1 id="kubectl准备"><a href="#kubectl准备" class="headerlink" title="kubectl准备"></a>kubectl准备</h1><p>下面的命令是配置如何使用<code>kubectl</code>访问集群，kubectl是访问集群的工具，并不是k8s集群必须配备的组件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p $HOME/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br></pre></td></tr></table></figure>
+
+<h1 id="Master-Node-参与工作负载"><a href="#Master-Node-参与工作负载" class="headerlink" title="Master Node 参与工作负载"></a>Master Node 参与工作负载</h1><p>使用kubeadm初始化的集群，Pod不会被调度到Master Node上，也就是说Master Node不参与工作负载。这是因为当前的master节点被打上了<code>node-role.kubernetes.io/master:NoScheduler</code>的污点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl describe node master | grep Taint</span><br><span class="line">Taints:             node-role.kubernetes.io/master:NoSchedule</span><br></pre></td></tr></table></figure>
+
+<p>让Master Node参与工作负载<code>kubectl taint nodes master node-role.kubernetes.io/master-</code></p>
+<h1 id="Node-Join-slave"><a href="#Node-Join-slave" class="headerlink" title="Node Join(slave)"></a>Node Join(slave)</h1><p>Kubernetes通过将容器放入在节点(Node)上运行的Pod中来执行你的工作负载。节点可以是一个虚拟机或者物理机器，取决于所在的集群配置。每个节点包含运行Pods所需的服务；这些节点由控制面负责管理。通常集群中会有若干个节点；而在一个学习用或者资源受限的环境中，你的集群中也可能只有一个节点。<br>节点上的组件包括<code>kubelet</code>、容器运行时以及<code>kube-proxy</code>。</p>
+<p>一个节点的状态包含以下信息：地址、状况、容量与可分配等。可以通过kubectl命令来查看节点状态和详细信息：<code>kubectl describe node master</code></p>
+<p>node环境准备好后执行join命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@slave2 ~]# kubeadm join 192.168.8.2:6443 --token xxffo1.ii2aihfyhisk2j01 \</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">        --discovery-token-ca-cert-hash sha256:9dff6188ab35c6cdee9465e00dd1f5c14c413763e35405258026592fa82f0269</span></span><br><span class="line">[preflight] Running pre-flight checks</span><br><span class="line">        [WARNING FileExisting-tc]: tc not found in system path</span><br><span class="line">[preflight] Reading configuration from the cluster...</span><br><span class="line">[preflight] FYI: You can look at this config file with &#x27;kubectl -n kube-system get cm kubeadm-config -o yaml&#x27;</span><br><span class="line">[kubelet-start] Writing kubelet configuration to file &quot;/var/lib/kubelet/config.yaml&quot;</span><br><span class="line">[kubelet-start] Writing kubelet environment file with flags to file &quot;/var/lib/kubelet/kubeadm-flags.env&quot;</span><br><span class="line">[kubelet-start] Starting the kubelet</span><br><span class="line">[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...</span><br><span class="line"></span><br><span class="line">This node has joined the cluster:</span><br><span class="line">* Certificate signing request was sent to apiserver and a response was received.</span><br><span class="line">* The Kubelet was informed of the new secure connection details.</span><br><span class="line"></span><br><span class="line">Run &#x27;kubectl get nodes&#x27; on the control-plane to see this node join the cluster.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>待两个slave均join后，在master上可以看到node信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get nodes</span><br><span class="line">NAME     STATUS   ROLES                  AGE     VERSION</span><br><span class="line">master   Ready    control-plane,master   19h     v1.21.5</span><br><span class="line">slave1   Ready    &lt;none&gt;                 93m     v1.21.5</span><br><span class="line">slave2   Ready    &lt;none&gt;                 2m25s   v1.21.5</span><br></pre></td></tr></table></figure>
+
+<p>现在在slave上并不能执行kubectl命令，如果想在slave上也可以执行kubectl命令查看集群状态的话，需要将<code>/root/.kube/config</code>文件拷贝到slave上。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# scp /root/.kube/config root@slave1:/root/.kube/config</span><br><span class="line">[root@master ~]# scp /root/.kube/config root@slave2:/root/.kube/config</span><br></pre></td></tr></table></figure>
+
+<p>给slave1和slave2添加标签</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl label nodes slave1 slave2 node-role.kubernetes.io/node=</span><br><span class="line">node/slave1 labeled</span><br><span class="line">node/slave2 labeled</span><br><span class="line">[root@master ~]# kubectl get node</span><br><span class="line">NAME     STATUS   ROLES                  AGE    VERSION</span><br><span class="line">master   Ready    control-plane,master   20h    v1.21.5</span><br><span class="line">slave1   Ready    node                   125m   v1.21.5</span><br><span class="line">slave2   Ready    node                   34m    v1.21.5</span><br></pre></td></tr></table></figure>
+
+<p>token默认可以使用时间为24小时，如果24小时后还有其他node想加入到k8s集群则需要重新生成token</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubeadm token create --print-join-command</span><br><span class="line">kubeadm join 192.168.8.2:6443 --token 47tlq4.ny5iqikykgg2e9g4 --discovery-token-ca-cert-hash sha256:9dff6188ab35c6cdee9465e00dd1f5c14c413763e35405258026592fa82f0269</span><br></pre></td></tr></table></figure>
+
+<h1 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h1><p>Kubernetes支持多个虚拟集群，它们底层依赖于同一个物理集群。这些虚拟集群被称为名字空间。在一些文档里名字空间也称为命名空间。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.72mf9tce4d40.webp"
+                     
+                ></p>
+<h2 id="何时使用多个名字空间"><a href="#何时使用多个名字空间" class="headerlink" title="何时使用多个名字空间"></a>何时使用多个名字空间</h2><p>名字空间适用于存在很多跨多个团队或项目的用户的场景。对于只有几到几十个用户的集群，根本不需要创建或考虑名字空间。当需要名称空间提供的功能时，请开始使用它们。名字空间为名称提供了一个范围。资源的名称需要在名字空间内是唯一的，但不能跨名字空间。名字空间不能相互嵌套，每个Kubernetes资源只能在一个名字空间中。名字空间是在多个用户之间划分集群资源的一种方法(通过资源配额)。<br>不必使用多个名字空间来分隔仅仅轻微不同的资源，例如同一软件的不同版本。应该使用标签来区分同一名字空间中的不同资源。</p>
+<h2 id="查看名字空间"><a href="#查看名字空间" class="headerlink" title="查看名字空间"></a>查看名字空间</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get namespace</span><br><span class="line">NAME              STATUS   AGE</span><br><span class="line">default           Active   21h</span><br><span class="line">kube-node-lease   Active   21h</span><br><span class="line">kube-public       Active   21h</span><br><span class="line">kube-system       Active   21h</span><br></pre></td></tr></table></figure>
+
+<p><strong>Kubernetes会创建四个初始名字空间：</strong></p>
+<ul>
+<li><strong>default</strong> 没有指明使用其它名字空间的对象所使用的默认名字空间</li>
+<li><strong>kube-system</strong> Kubernetes系统创建对象所使用的名字空间</li>
+<li><strong>kube-public</strong> 这个名字空间是自动创建的，所有用户(包括未经过身份验证的用户)都可以读取它。这个名字空间主要用于集群使用，以防某些资源在整个集群中应该是可见和可读的。这个名字空间的公共方面只是一种约定，而不是要求。</li>
+<li><strong>kube-node-lease</strong> 此名字空间用于与各个节点相关的租期(Lease)对象,此对象的设计使得集群规模很大时节点心跳检测性能得到提升。</li>
+</ul>
+<h2 id="名字空间操作"><a href="#名字空间操作" class="headerlink" title="名字空间操作"></a>名字空间操作</h2><ul>
+<li><p>创建/删除名字空间</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl create namespace develop</span><br><span class="line">namespace/develop created</span><br><span class="line">[root@master ~]# kubectl get namespace</span><br><span class="line">NAME              STATUS   AGE</span><br><span class="line">default           Active   22h</span><br><span class="line">develop           Active   7s</span><br><span class="line">kube-node-lease   Active   22h</span><br><span class="line">kube-public       Active   22h</span><br><span class="line">kube-system       Active   22h</span><br><span class="line">[root@master ~]# kubectl delete namespace develop</span><br><span class="line">namespace &quot;develop&quot; deleted</span><br><span class="line">[root@master ~]# kubectl get namespace</span><br><span class="line">NAME              STATUS   AGE</span><br><span class="line">default           Active   22h</span><br><span class="line">kube-node-lease   Active   22h</span><br><span class="line">kube-public       Active   22h</span><br><span class="line">kube-system       Active   22h</span><br></pre></td></tr></table></figure></li>
+<li><p>查看名字空间下的pod</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get pod -n kube-system</span><br><span class="line">NAME                             READY   STATUS    RESTARTS   AGE</span><br><span class="line">coredns-59d64cd4d4-2nqw9         1/1     Running   1          22h</span><br><span class="line">coredns-59d64cd4d4-glgcv         1/1     Running   1          22h</span><br><span class="line">etcd-master                      1/1     Running   2          22h</span><br><span class="line">kube-apiserver-master            1/1     Running   2          22h</span><br><span class="line">kube-controller-manager-master   1/1     Running   2          21h</span><br><span class="line">kube-flannel-ds-5wlkj            1/1     Running   1          5h34m</span><br><span class="line">kube-flannel-ds-v2w4c            1/1     Running   0          134m</span><br><span class="line">kube-flannel-ds-vvqkb            1/1     Running   0          3h45m</span><br><span class="line">kube-proxy-2v62k                 1/1     Running   0          134m</span><br><span class="line">kube-proxy-rdxvn                 1/1     Running   2          22h</span><br><span class="line">kube-proxy-x94l2                 1/1     Running   0          3h45m</span><br><span class="line">kube-scheduler-master            1/1     Running   2          21h</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>查看pod在哪个节点上</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get pod -A -owide</span><br><span class="line">NAMESPACE     NAME                             READY   STATUS    RESTARTS   AGE     IP            NODE     NOMINATED NODE   READINESS GATES</span><br><span class="line">kube-system   coredns-59d64cd4d4-2nqw9         1/1     Running   1          22h     172.17.0.5    master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   coredns-59d64cd4d4-glgcv         1/1     Running   1          22h     172.17.0.4    master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   etcd-master                      1/1     Running   2          22h     192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-apiserver-master            1/1     Running   2          22h     192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-controller-manager-master   1/1     Running   2          21h     192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-flannel-ds-5wlkj            1/1     Running   1          5h37m   192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-flannel-ds-v2w4c            1/1     Running   0          137m    192.168.8.4   slave2   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-flannel-ds-vvqkb            1/1     Running   0          3h48m   192.168.8.3   slave1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-proxy-2v62k                 1/1     Running   0          137m    192.168.8.4   slave2   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-proxy-rdxvn                 1/1     Running   2          22h     192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-proxy-x94l2                 1/1     Running   0          3h48m   192.168.8.3   slave1   &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-system   kube-scheduler-master            1/1     Running   2          21h     192.168.8.2   master   &lt;none&gt;           &lt;none&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="K8S-HA集群安装"><a href="#K8S-HA集群安装" class="headerlink" title="K8S HA集群安装"></a>K8S HA集群安装</h1><p>堆叠(Stacked) HA集群是一种这样的拓扑，其中etcd分布式数据存储集群堆叠在kubeadm管理的控制平面节点上，作为控制平面的一个组件运行。每个控制平面节点运行<code>kube-apiserver</code>,<code>kube-scheduler</code>和<code>kube-controller-manager</code>实例。<code>kube-apiserver</code>使用负载均衡器暴露给工作节点。每个控制平面节点创建一个本地etcd成员(member)，这个etcd成员只与该节点的<code>kube-apiserver</code>通信。这同样适用于本地<code>kube-controller-manager</code>和<code>kube-scheduler</code>实例。<br>这种拓扑将控制平面和etcd成员耦合在同一节点上。相对使用外部etcd集群，设置起来更简单，而且更易于副本管理。然而，堆叠集群存在耦合失败的风险。如果一个节点发生故障，则etcd成员和控制平面实例都将丢失，并且冗余会受到影响。您可以通过添加更多控制平面节点来降低此风险。因此，您应该为HA集群运行至少三个堆叠的控制平面节点。<br>这是kubeadm中的默认拓扑。当使用<code>kubeadm init</code>和<code>kubeadm join --control-plane</code>时，在控制平面节点上会自动创建本地etcd成员。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.jypdogpss5s.webp"
+                     
+                ></p>
+<h1 id="troubleshooting"><a href="#troubleshooting" class="headerlink" title="troubleshooting"></a>troubleshooting</h1><h2 id="组件unhealthy"><a href="#组件unhealthy" class="headerlink" title="组件unhealthy"></a>组件unhealthy</h2><p>通过kubeadm安装好kubenetes,查看集群状态，发现<code>controller-manager</code>和<code>scheduler</code>状态为<code>Unhealthy</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get cs</span><br><span class="line">Warning: v1 ComponentStatus is deprecated in v1.19+</span><br><span class="line">NAME                 STATUS      MESSAGE   	                                                                               </span><br><span class="line">controller-manager   Unhealthy   Get &quot;http://127.0.0.1:10252/healthz&quot;: dial tcp 127.0.0.1:10252: connect: connection refused</span><br><span class="line">scheduler            Unhealthy   Get &quot;http://127.0.0.1:10251/healthz&quot;: dial tcp 127.0.0.1:10251: connect: connection refused</span><br><span class="line">etcd-0               Healthy     &#123;&quot;health&quot;:&quot;true&quot;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>检查<code>kube-scheduler</code>和<code>kube-controller-manager</code>组件配置是否禁用了非安全端口</p>
+<p><code>vim /etc/kubernetes/manifests/kube-scheduler.yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">command:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">kube-scheduler</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--authentication-kubeconfig=/etc/kubernetes/scheduler.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--authorization-kubeconfig=/etc/kubernetes/scheduler.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--bind-address=127.0.0.1</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--kubeconfig=/etc/kubernetes/scheduler.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--leader-elect=true</span></span><br><span class="line"><span class="comment">#    - --port=0 #将此行注释掉</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p><code>vim /etc/kubernetes/manifests/kube-controller-manager.yaml</code></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">command:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">kube-controller-manager</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--allocate-node-cidrs=true</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--authentication-kubeconfig=/etc/kubernetes/controller-manager.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--authorization-kubeconfig=/etc/kubernetes/controller-manager.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--bind-address=127.0.0.1</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--client-ca-file=/etc/kubernetes/pki/ca.crt</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--cluster-cidr=172.17.0.1/16</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--cluster-name=kubernetes</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--cluster-signing-key-file=/etc/kubernetes/pki/ca.key</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--controllers=*,bootstrapsigner,tokencleaner</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--kubeconfig=/etc/kubernetes/controller-manager.conf</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--leader-elect=true</span></span><br><span class="line"><span class="comment">#    - --port=0 #将此行注释掉</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">--requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+<p>再次查看发现组件已经正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# kubectl get cs</span><br><span class="line">Warning: v1 ComponentStatus is deprecated in v1.19+</span><br><span class="line">NAME                 STATUS    MESSAGE             ERROR</span><br><span class="line">controller-manager   Healthy   ok</span><br><span class="line">scheduler            Healthy   ok</span><br><span class="line">etcd-0               Healthy   &#123;&quot;health&quot;:&quot;true&quot;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="kubeadm证书续期"><a href="#kubeadm证书续期" class="headerlink" title="kubeadm证书续期"></a><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/" >kubeadm证书续期<i class="fas fa-external-link-alt"></i></a></h2><p>kubeadm默认证书为一年，一年过期后，会导致<code>api service</code>不可用，使用过程中会出现：<code>x509: certificate has expired or is not yet valid.</code></p>
+<p>证书默认存放目录：<code>/etc/kubernetes/pki</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@master kubernetes]# kubeadm certs check-expiration</span><br><span class="line">[check-expiration] Reading configuration from the cluster...</span><br><span class="line">[check-expiration] FYI: You can look at this config file with &#x27;kubectl -n kube-system get cm kubeadm-config -o yaml&#x27;</span><br><span class="line"></span><br><span class="line">CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED</span><br><span class="line">admin.conf                 Mar 29, 2023 09:25 UTC   363d                                    no</span><br><span class="line">apiserver                  Mar 29, 2023 09:24 UTC   363d            ca                      no</span><br><span class="line">apiserver-etcd-client      Mar 29, 2023 09:25 UTC   363d            etcd-ca                 no</span><br><span class="line">apiserver-kubelet-client   Mar 29, 2023 09:24 UTC   363d            ca                      no</span><br><span class="line">controller-manager.conf    Mar 29, 2023 09:25 UTC   363d                                    no</span><br><span class="line">etcd-healthcheck-client    Mar 29, 2023 09:25 UTC   363d            etcd-ca                 no</span><br><span class="line">etcd-peer                  Mar 29, 2023 09:25 UTC   363d            etcd-ca                 no</span><br><span class="line">etcd-server                Mar 29, 2023 09:24 UTC   363d            etcd-ca                 no</span><br><span class="line">front-proxy-client         Mar 29, 2023 09:24 UTC   363d            front-proxy-ca          no</span><br><span class="line">scheduler.conf             Mar 29, 2023 09:25 UTC   363d                                    no</span><br><span class="line"></span><br><span class="line">CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED</span><br><span class="line">ca                      Mar 26, 2032 09:24 UTC   9y              no</span><br><span class="line">etcd-ca                 Mar 26, 2032 09:24 UTC   9y              no</span><br><span class="line">front-proxy-ca          Mar 26, 2032 09:24 UTC   9y              no</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接查看证书</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@master pki]# for i in `ll /etc/kubernetes/pki | grep crt | awk &#x27;&#123;print $9&#125;&#x27;`;do echo $i &amp;&amp; openssl x509 -in $i -noout -text |grep Not;done</span><br><span class="line">apiserver.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 29 09:24:59 2023 GMT</span><br><span class="line">apiserver-etcd-client.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 29 09:25:00 2023 GMT</span><br><span class="line">apiserver-kubelet-client.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 29 09:24:59 2023 GMT</span><br><span class="line">ca.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 26 09:24:59 2032 GMT</span><br><span class="line">front-proxy-ca.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 26 09:24:59 2032 GMT</span><br><span class="line">front-proxy-client.crt</span><br><span class="line">            Not Before: Mar 29 09:24:59 2022 GMT</span><br><span class="line">            Not After : Mar 29 09:24:59 2023 GMT</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装完K8S后发现flannel无法正常启动"><a href="#安装完K8S后发现flannel无法正常启动" class="headerlink" title="安装完K8S后发现flannel无法正常启动"></a>安装完K8S后发现flannel无法正常启动</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# kubectl get pod -A</span><br><span class="line">NAMESPACE     NAME                                            READY   STATUS              RESTARTS   AGE</span><br><span class="line">kube-system   coredns-59d64cd4d4-fnmnr                        0/1     ContainerCreating   0          125m</span><br><span class="line">kube-system   coredns-59d64cd4d4-t5k8h                        0/1     ContainerCreating   0          125m</span><br><span class="line">kube-system   etcd-localhost.localdomain                      1/1     Running             1          125m</span><br><span class="line">kube-system   kube-apiserver-localhost.localdomain            1/1     Running             1          125m</span><br><span class="line">kube-system   kube-controller-manager-localhost.localdomain   1/1     Running             1          125m</span><br><span class="line">kube-system   kube-flannel-ds-5n42z                           0/1     CrashLoopBackOff    11         13m</span><br><span class="line">kube-system   kube-proxy-xbl8g                                1/1     Running             1          108m</span><br><span class="line">kube-system   kube-scheduler-localhost.localdomain            1/1     Running             1          125m</span><br><span class="line">[root@localhost ~]# kubectl logs kube-flannel-ds-5n42z --namespace=kube-system</span><br><span class="line">I0527 08:17:09.842024       1 main.go:207] CLI flags config: &#123;etcdEndpoints:http://127.0.0.1:4001,http://127.0.0.1:2379 etcdPrefix:/coreos.com/network etcdKeyfile: etcdCertfile: etcdCAFile: etcdUsername: etcdPassword: version:false kubeSubnetMgr:true kubeApiUrl: kubeAnnotationPrefix:flannel.alpha.coreos.com kubeConfigFile: iface:[] ifaceRegex:[] ipMasq:true ifaceCanReach: subnetFile:/run/flannel/subnet.env publicIP: publicIPv6: subnetLeaseRenewMargin:60 healthzIP:0.0.0.0 healthzPort:0 iptablesResyncSeconds:5 iptablesForwardRules:true netConfPath:/etc/kube-flannel/net-conf.json setNodeNetworkUnavailable:true&#125;</span><br><span class="line">W0527 08:17:09.947820       1 client_config.go:614] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.</span><br><span class="line">I0527 08:17:10.433515       1 kube.go:121] Waiting 10m0s for node controller to sync</span><br><span class="line">I0527 08:17:10.433611       1 kube.go:398] Starting kube subnet manager</span><br><span class="line">I0527 08:17:11.434343       1 kube.go:128] Node controller sync successful</span><br><span class="line">I0527 08:17:11.434437       1 main.go:227] Created subnet manager: Kubernetes Subnet Manager - localhost.localdomain</span><br><span class="line">I0527 08:17:11.434453       1 main.go:230] Installing signal handlers</span><br><span class="line">I0527 08:17:11.435783       1 main.go:463] Found network config - Backend type: vxlan</span><br><span class="line">I0527 08:17:11.435882       1 match.go:195] Determining IP address of default interface</span><br><span class="line">I0527 08:17:11.438439       1 match.go:248] Using interface with name enp0s3 and address 10.0.2.15</span><br><span class="line">I0527 08:17:11.440261       1 match.go:270] Defaulting external address to interface address (10.0.2.15)</span><br><span class="line">I0527 08:17:11.440412       1 vxlan.go:138] VXLAN config: VNI=1 Port=0 GBP=false Learning=false DirectRouting=false</span><br><span class="line">I0527 08:17:11.442592       1 kube.go:351] Setting NodeNetworkUnavailable</span><br><span class="line">E0527 08:17:11.720252       1 main.go:326] Error registering network: failed to acquire lease: subnet &quot;10.244.0.0/16&quot; specified in the flannel net config doesn&#x27;t contain &quot;172.17.0.0/24&quot; PodCIDR of the &quot;localhost.localdomain&quot; node.</span><br><span class="line">W0527 08:17:11.720481       1 reflector.go:436] github.com/flannel-io/flannel/subnet/kube/kube.go:399: watch of *v1.Node ended with: an error on the server (&quot;unable to decode an event from the watch stream: context canceled&quot;) has prevented the request from succeeding</span><br><span class="line">I0527 08:17:11.720578       1 main.go:443] Stopping shutdownHandler...</span><br></pre></td></tr></table></figure>
+
+<p>集群初始化时参数<code>--pod-network-cidr=172.17.0.1/16</code>，未修改kube-flannel.yml中Network键值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# cat kube-flannel.yml|grep -E &quot;^\s*\&quot;Network&quot;</span><br><span class="line">      &quot;Network&quot;: &quot;10.244.0.0/16&quot;,</span><br></pre></td></tr></table></figure>
+
+<p>将<code>kube-flannel.yml</code>中的配置进行修改</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">metadata:</span><br><span class="line">  name: kube-flannel-cfg</span><br><span class="line">  namespace: kube-system</span><br><span class="line">  labels:</span><br><span class="line">    tier: node</span><br><span class="line">    app: flannel</span><br><span class="line">data:</span><br><span class="line">  cni-conf.json: |</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;name&quot;: &quot;cbr0&quot;,</span><br><span class="line">      &quot;cniVersion&quot;: &quot;0.3.1&quot;,</span><br><span class="line">      &quot;plugins&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;type&quot;: &quot;flannel&quot;,</span><br><span class="line">          &quot;delegate&quot;: &#123;</span><br><span class="line">            &quot;hairpinMode&quot;: true,</span><br><span class="line">            &quot;isDefaultGateway&quot;: true</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;type&quot;: &quot;portmap&quot;,</span><br><span class="line">          &quot;capabilities&quot;: &#123;</span><br><span class="line">            &quot;portMappings&quot;: true</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  net-conf.json: |</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;Network&quot;: &quot;172.17.0.0/16&quot;,#此项修改为初始化时pod-network-cidr指定的值</span><br><span class="line">      &quot;Backend&quot;: &#123;</span><br><span class="line">        &quot;Type&quot;: &quot;vxlan&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost kubeConfig]# kubectl apply -f kube-flannel.yml</span><br><span class="line">[root@localhost kubeConfig]# kubectl get pod -A</span><br><span class="line">NAMESPACE     NAME                                            READY   STATUS    RESTARTS   AGE</span><br><span class="line">kube-system   coredns-59d64cd4d4-fnmnr                        1/1     Running   0          172m</span><br><span class="line">kube-system   coredns-59d64cd4d4-t5k8h                        1/1     Running   0          172m</span><br><span class="line">kube-system   etcd-localhost.localdomain                      1/1     Running   1          172m</span><br><span class="line">kube-system   kube-apiserver-localhost.localdomain            1/1     Running   1          172m</span><br><span class="line">kube-system   kube-controller-manager-localhost.localdomain   1/1     Running   1          172m</span><br><span class="line">kube-system   kube-flannel-ds-f5zcs                           1/1     Running   0          7m22s</span><br><span class="line">kube-system   kube-proxy-xbl8g                                1/1     Running   1          154m</span><br><span class="line">kube-system   kube-scheduler-localhost.localdomain            1/1     Running   1          172m</span><br></pre></td></tr></table></figure>
+
+<p>如果flannel重启较慢，可以将此pod手动删除<code>kubectl delete pod kube-flannel-ds-5n42z --namespace=kube-system</code></p>
+<h2 id="core-dns-无限重启"><a href="#core-dns-无限重启" class="headerlink" title="core dns 无限重启"></a>core dns 无限重启</h2><p>安装完k8s后，过几天发现coredns无限重启，并报错，突然想到是不是因为未修改flannel导致的，虽然flannel看着是正常的，还是按照<code>安装完K8S后发现flannel无法正常启动</code>进行了修改，然后删除coredns pod后，发现dns恢复正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# k get pods</span><br><span class="line">NAME                             READY   STATUS             RESTARTS   AGE</span><br><span class="line">coredns-59d64cd4d4-2nqw9         0/1     CrashLoopBackOff   1277       64d</span><br><span class="line">coredns-59d64cd4d4-glgcv         0/1     Running            1271       64d</span><br><span class="line">etcd-master                      1/1     Running            17         64d</span><br><span class="line">kube-apiserver-master            1/1     Running            17         64d</span><br><span class="line">kube-controller-manager-master   1/1     Running            17         64d</span><br><span class="line">kube-flannel-ds-kp42d            1/1     Running            0          19m</span><br><span class="line">kube-flannel-ds-l95xj            1/1     Running            0          19m</span><br><span class="line">kube-flannel-ds-p7dtg            1/1     Running            0          19m</span><br><span class="line">kube-proxy-2v62k                 1/1     Running            8          63d</span><br><span class="line">kube-proxy-rdxvn                 1/1     Running            17         64d</span><br><span class="line">kube-proxy-x94l2                 1/1     Running            8          63d</span><br><span class="line">kube-scheduler-master            1/1     Running            17         64d</span><br><span class="line"></span><br><span class="line">[root@master conf]# k logs coredns-59d64cd4d4-glgcv -n=kube-system</span><br><span class="line">E0602 02:13:06.387925       1 reflector.go:127] pkg/mod/k8s.io/client-go@v0.19.2/tools/cache/reflector.go:156: Failed to watch *v1.Endpoints: failed to list *v1.Endpoints: Get &quot;https://172.18.0.1:443/api/v1/endpoints?limit=500&amp;resourceVersion=0&quot;: dial tcp 172.18.0.1:443: connect: no route to host</span><br><span class="line">E0602 02:13:06.387945       1 reflector.go:127] pkg/mod/k8s.io/client-go@v0.19.2/tools/cache/reflector.go:156: Failed to watch *v1.Namespace: failed to list *v1.Namespace: Get &quot;https://172.18.0.1:443/api/v1/namespaces?limit=500&amp;resourceVersion=0&quot;: dial tcp 172.18.0.1:443: connect: no route to host</span><br><span class="line">E0602 02:13:06.388047       1 reflector.go:127] pkg/mod/k8s.io/client-go@v0.19.2/tools/cache/reflector.go:156: Failed to watch *v1.Service: failed to list *v1.Service: Get &quot;https://172.18.0.1:443/api/v1/services?limit=500&amp;resourceVersion=0&quot;: dial tcp 172.18.0.1:443: connect: no route to host</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]# k get pod -A</span><br><span class="line">NAMESPACE     NAME                             READY   STATUS    RESTARTS   AGE</span><br><span class="line">kube-system   coredns-59d64cd4d4-fphkz         1/1     Running   0          66m</span><br><span class="line">kube-system   coredns-59d64cd4d4-q4692         1/1     Running   0          66m</span><br><span class="line">kube-system   etcd-master                      1/1     Running   17         64d</span><br><span class="line">kube-system   kube-apiserver-master            1/1     Running   17         64d</span><br><span class="line">kube-system   kube-controller-manager-master   1/1     Running   17         64d</span><br><span class="line">kube-system   kube-flannel-ds-kp42d            1/1     Running   0          86m</span><br><span class="line">kube-system   kube-flannel-ds-l95xj            1/1     Running   0          86m</span><br><span class="line">kube-system   kube-flannel-ds-p7dtg            1/1     Running   0          86m</span><br><span class="line">kube-system   kube-proxy-2v62k                 1/1     Running   8          63d</span><br><span class="line">kube-system   kube-proxy-rdxvn                 1/1     Running   17         64d</span><br><span class="line">kube-system   kube-proxy-x94l2                 1/1     Running   8          63d</span><br><span class="line">kube-system   kube-scheduler-master            1/1     Running   17         64d</span><br></pre></td></tr></table></figure>
+
+<h2 id="节点状态notReady"><a href="#节点状态notReady" class="headerlink" title="节点状态notReady"></a>节点状态notReady</h2><p>K8S node节点kubeadm join命令后，已成功添加到集群，但是执行kubectl get nodes命令看到node状态依旧是NotReady</p>
+<p>查看报错信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">➜  net.d systemctl status kubelet -l</span><br><span class="line">● kubelet.service - kubelet: The Kubernetes Node Agent</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/kubelet.service; enabled; vendor preset: disabled)</span><br><span class="line">  Drop-In: /usr/lib/systemd/system/kubelet.service.d</span><br><span class="line">           └─10-kubeadm.conf</span><br><span class="line">   Active: active (running) since Sat 2022-12-17 13:16:12 CST; 6min ago</span><br><span class="line">     Docs: https://kubernetes.io/docs/</span><br><span class="line"> Main PID: 29732 (kubelet)</span><br><span class="line">    Tasks: 14</span><br><span class="line">   Memory: 33.4M</span><br><span class="line">   CGroup: /system.slice/kubelet.service</span><br><span class="line">           └─29732 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --network-plugin=cni --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.4.1</span><br><span class="line"></span><br><span class="line">Dec 17 13:22:01 victor kubelet[29732]: E1217 13:22:01.343133   29732 kubelet.go:2211] &quot;Container runtime network not ready&quot; networkReady=&quot;NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized&quot;</span><br><span class="line">Dec 17 13:22:03 victor kubelet[29732]: I1217 13:22:03.373089   29732 cni.go:204] &quot;Error validating CNI config list&quot; configList=&quot;&#123;\n  \&quot;name\&quot;: \&quot;cbr0\&quot;,\n  \&quot;cniVersion\&quot;: \&quot;0.3.1\&quot;,\n  \&quot;plugins\&quot;: [\n    &#123;\n      \&quot;type\&quot;: \&quot;flannel\&quot;,\n      \&quot;delegate\&quot;: &#123;\n        \&quot;hairpinMode\&quot;: true,\n        \&quot;isDefaultGateway\&quot;: true\n      &#125;\n    &#125;,\n    &#123;\n      \&quot;type\&quot;: \&quot;portmap\&quot;,\n      \&quot;capabilities\&quot;: &#123;\n        \&quot;portMappings\&quot;: true\n      &#125;\n    &#125;\n  ]\n&#125;\n&quot; err=&quot;[failed to find plugin \&quot;flannel\&quot; in path [/opt/cni/bin]]&quot;</span><br><span class="line">Dec 17 13:22:03 victor kubelet[29732]: I1217 13:22:03.373159   29732 cni.go:239] &quot;Unable to update cni config&quot; err=&quot;no valid networks found in /etc/cni/net.d&quot;</span><br><span class="line">Dec 17 13:22:06 victor kubelet[29732]: E1217 13:22:06.366103   29732 kubelet.go:2211] &quot;Container runtime network not ready&quot; networkReady=&quot;NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized&quot;</span><br><span class="line">Dec 17 13:22:08 victor kubelet[29732]: I1217 13:22:08.378997   29732 cni.go:204] &quot;Error validating CNI config list&quot; configList=&quot;&#123;\n  \&quot;name\&quot;: \&quot;cbr0\&quot;,\n  \&quot;cniVersion\&quot;: \&quot;0.3.1\&quot;,\n  \&quot;plugins\&quot;: [\n    &#123;\n      \&quot;type\&quot;: \&quot;flannel\&quot;,\n      \&quot;delegate\&quot;: &#123;\n        \&quot;hairpinMode\&quot;: true,\n        \&quot;isDefaultGateway\&quot;: true\n      &#125;\n    &#125;,\n    &#123;\n      \&quot;type\&quot;: \&quot;portmap\&quot;,\n      \&quot;capabilities\&quot;: &#123;\n        \&quot;portMappings\&quot;: true\n      &#125;\n    &#125;\n  ]\n&#125;\n&quot; err=&quot;[failed to find plugin \&quot;flannel\&quot; in path [/opt/cni/bin]]&quot;</span><br><span class="line">Dec 17 13:22:08 victor kubelet[29732]: I1217 13:22:08.379065   29732 cni.go:239] &quot;Unable to update cni config&quot; err=&quot;no valid networks found in /etc/cni/net.d&quot;</span><br><span class="line">Dec 17 13:22:11 victor kubelet[29732]: E1217 13:22:11.388666   29732 kubelet.go:2211] &quot;Container runtime network not ready&quot; networkReady=&quot;NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized&quot;</span><br><span class="line">Dec 17 13:22:13 victor kubelet[29732]: I1217 13:22:13.384406   29732 cni.go:204] &quot;Error validating CNI config list&quot; configList=&quot;&#123;\n  \&quot;name\&quot;: \&quot;cbr0\&quot;,\n  \&quot;cniVersion\&quot;: \&quot;0.3.1\&quot;,\n  \&quot;plugins\&quot;: [\n    &#123;\n      \&quot;type\&quot;: \&quot;flannel\&quot;,\n      \&quot;delegate\&quot;: &#123;\n        \&quot;hairpinMode\&quot;: true,\n        \&quot;isDefaultGateway\&quot;: true\n      &#125;\n    &#125;,\n    &#123;\n      \&quot;type\&quot;: \&quot;portmap\&quot;,\n      \&quot;capabilities\&quot;: &#123;\n        \&quot;portMappings\&quot;: true\n      &#125;\n    &#125;\n  ]\n&#125;\n&quot; err=&quot;[failed to find plugin \&quot;flannel\&quot; in path [/opt/cni/bin]]&quot;</span><br><span class="line">Dec 17 13:22:13 victor kubelet[29732]: I1217 13:22:13.384479   29732 cni.go:239] &quot;Unable to update cni config&quot; err=&quot;no valid networks found in /etc/cni/net.d&quot;</span><br><span class="line">Dec 17 13:22:16 victor kubelet[29732]: E1217 13:22:16.418715   29732 kubelet.go:2211] &quot;Container runtime network not ready&quot; networkReady=&quot;NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin is not ready: cni config uninitialized&quot;</span><br></pre></td></tr></table></figure>
+
+<p>发现有问题的节点上缺少<code>flannel</code>文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  system cd /opt/cni/bin</span><br><span class="line">➜  bin ls</span><br><span class="line">bandwidth  bridge  dhcp  firewall  host-device  host-local  ipvlan  loopback  macvlan  portmap  ptp  sbr  static  tuning  vlan  vrf</span><br></pre></td></tr></table></figure>
+
+<p>查看master节点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  system cd /opt/cni/bin</span><br><span class="line">➜  bin ls</span><br><span class="line">bandwidth  bridge  dhcp  firewall  flannel  host-device  host-local  ipvlan  loopback  macvlan  portmap  ptp  sbr  static  tuning  vlan  vrf</span><br></pre></td></tr></table></figure>
+
+<p>将master节点上的flannel文件copy到slave节点上，node状态转为正常</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  bin kubectl get nodes</span><br><span class="line">NAME     STATUS   ROLES                  AGE   VERSION</span><br><span class="line">chay     Ready    control-plane,master   13h   v1.21.5</span><br><span class="line">victor   Ready    node                   9h    v1.21.5</span><br></pre></td></tr></table></figure>
+
+<h2 id="无法访问某个节点pod的日志"><a href="#无法访问某个节点pod的日志" class="headerlink" title="无法访问某个节点pod的日志"></a>无法访问某个节点pod的日志</h2><p>通过<code>kubectl logs kubernetes-dashboard-5bdbb67675-wcj26 -f</code>去查看日志时，发现此pod被调度到了一个节点上，</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2022/03/14/K8S/Dashboard%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Dashboard安装及使用</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2022/03/14/K8S/Kubectl%E4%BB%8B%E7%BB%8D/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Kubectl介绍</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9yum%E6%BA%90"><span class="nav-number">1.1.</span> <span class="nav-text">修改yum源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#K8S%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.2.</span> <span class="nav-text">K8S环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#master-amp-node-%E4%BB%A5master%E4%B8%BA%E4%BE%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">master&amp;node(以master为例)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kubeadm-Kubelet-Kubectl-%E5%AE%89%E8%A3%85-master-and-node"><span class="nav-number">1.3.</span> <span class="nav-text">Kubeadm, Kubelet, Kubectl 安装 (master and node)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0yum%E6%BA%90%E5%B9%B6%E5%AE%89%E8%A3%85"><span class="nav-number">1.3.1.</span> <span class="nav-text">添加yum源并安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8kubelet"><span class="nav-number">1.3.2.</span> <span class="nav-text">启动kubelet</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">集群安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85k8s"><span class="nav-number">2.1.</span> <span class="nav-text">命令行安装k8s</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%85%E5%87%86%E5%A4%87%E5%8F%82%E6%95%B0"><span class="nav-number">2.1.1.</span> <span class="nav-text">待准备参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.1.2.</span> <span class="nav-text">修改负载均衡模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E6%8F%92%E4%BB%B6POD-network-Flannel-DamonSet"><span class="nav-number">2.2.</span> <span class="nav-text">安装网络插件POD network Flannel (DamonSet)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%B8%E8%BD%BD%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">卸载安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubectl%E5%87%86%E5%A4%87"><span class="nav-number">4.</span> <span class="nav-text">kubectl准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Master-Node-%E5%8F%82%E4%B8%8E%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD"><span class="nav-number">5.</span> <span class="nav-text">Master Node 参与工作负载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Node-Join-slave"><span class="nav-number">6.</span> <span class="nav-text">Node Join(slave)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Namespace"><span class="nav-number">7.</span> <span class="nav-text">Namespace</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E5%A4%9A%E4%B8%AA%E5%90%8D%E5%AD%97%E7%A9%BA%E9%97%B4"><span class="nav-number">7.1.</span> <span class="nav-text">何时使用多个名字空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%90%8D%E5%AD%97%E7%A9%BA%E9%97%B4"><span class="nav-number">7.2.</span> <span class="nav-text">查看名字空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E5%AD%97%E7%A9%BA%E9%97%B4%E6%93%8D%E4%BD%9C"><span class="nav-number">7.3.</span> <span class="nav-text">名字空间操作</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#K8S-HA%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85"><span class="nav-number">8.</span> <span class="nav-text">K8S HA集群安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#troubleshooting"><span class="nav-number">9.</span> <span class="nav-text">troubleshooting</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6unhealthy"><span class="nav-number">9.1.</span> <span class="nav-text">组件unhealthy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kubeadm%E8%AF%81%E4%B9%A6%E7%BB%AD%E6%9C%9F"><span class="nav-number">9.2.</span> <span class="nav-text">kubeadm证书续期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%AE%8CK8S%E5%90%8E%E5%8F%91%E7%8E%B0flannel%E6%97%A0%E6%B3%95%E6%AD%A3%E5%B8%B8%E5%90%AF%E5%8A%A8"><span class="nav-number">9.3.</span> <span class="nav-text">安装完K8S后发现flannel无法正常启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#core-dns-%E6%97%A0%E9%99%90%E9%87%8D%E5%90%AF"><span class="nav-number">9.4.</span> <span class="nav-text">core dns 无限重启</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8A%82%E7%82%B9%E7%8A%B6%E6%80%81notReady"><span class="nav-number">9.5.</span> <span class="nav-text">节点状态notReady</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9pod%E7%9A%84%E6%97%A5%E5%BF%97"><span class="nav-number">9.6.</span> <span class="nav-text">无法访问某个节点pod的日志</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

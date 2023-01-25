@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            Redis核心设计原理 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Redis核心设计原理</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-09-10 10:57:10
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Redis/">Redis</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>5.3k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>20 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="redisDB数据结构"><a href="#redisDB数据结构" class="headerlink" title="redisDB数据结构"></a>redisDB数据结构</h1><p>redis内存存储数据的数据结构为数组，即存储的key进行hash运算后对数组大小取模，即可得到value所在的位置。由于存在hash碰撞，数组中存储的为单向链表，每个链表存在一个指向下一个数据的指针，redis采用头插法，当发生hash碰撞时，会将数据放入头部。hash table默认数组大小为4。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line">    dict *dict; <span class="comment">/* redisDb数据存储的具体位置 */</span>               </span><br><span class="line">    dict *expires;          </span><br><span class="line">    dict *blocking_keys;          </span><br><span class="line">    dict *ready_keys;           </span><br><span class="line">    dict *watched_keys;         </span><br><span class="line">    <span class="type">int</span> id;                      </span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> avg_ttl;           </span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> expires_cursor;  </span><br><span class="line">    <span class="built_in">list</span> *defrag_later;          </span><br><span class="line">&#125; redisDb;</span><br><span class="line"><span class="comment">/* 里面定义了两个dictht，就是为了在扩容时，进行渐进式rehash */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="type">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="type">long</span> rehashidx; </span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> iterators;  </span><br><span class="line">    &#125; dict;</span><br><span class="line"><span class="comment">/* 这个是数据存储的hash table */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table; <span class="comment">/* 数组 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size; <span class="comment">/* 数组长度 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sizemask;<span class="comment">/* size-1 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> used;<span class="comment">/* hash table 元素个数 */</span></span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 每个具体的数据所存储结构 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> *key; <span class="comment">/* 数据所对应的key,即SDS对象 */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="type">void</span> *val;<span class="comment">/* 指向redisObject */</span></span><br><span class="line">        <span class="type">uint64_t</span> u64;</span><br><span class="line">        <span class="type">int64_t</span> s64;</span><br><span class="line">        <span class="type">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span> <span class="comment">/* 在产生hash碰撞时，指向下一个对象 */</span></span><br><span class="line">&#125; dictEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;       <span class="comment">// 4  bite 数据的具体类型，用来指定当前value的数据类型 如string,set,zset,list,hash</span></span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;   <span class="comment">// 4  bite 数据的value在redis底层所对应的数据类型 如 int,row,embstr,ziplist等</span></span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS; <span class="comment">// 24 byte </span></span><br><span class="line">    <span class="type">int</span> refcount;          <span class="comment">// 4  byte 引用计数法来管理内存</span></span><br><span class="line">    <span class="type">void</span> *ptr;             <span class="comment">// 8  byte 数据真实所存在的地址</span></span><br><span class="line">&#125; robj;					   <span class="comment">// redisObject总大小为16 byte</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="渐进式rehash"><a href="#渐进式rehash" class="headerlink" title="渐进式rehash"></a>渐进式rehash</h2><p>当dictht中used:size=1:1时，redisDb会进行扩容，每次会扩大一倍的大小，如果扩容前数据量较大时，进行扩容并将老数组中的数据迁移到新数组会消耗掉大量的资源造成客户端的卡顿，所以redis没有采用扩容后直接将老数据迁移到新数组中，而是会进行渐进式的rehash，即在扩容的过程中当客户端访问某个key时，先在ht[0]中来查询value是否存在，如果不存在会去ht[1]中查询；如果ht[0]中存在的话，计算这个key所在原桶的位置，并将这个桶中所有的数据都迁移到新的桶中。如果长时间没有进行访问，会通过事件的轮询来进行迁移。在将所有的数据均迁移完后，将ht[0]指向新的数组，并将ht[1]指向null,代表迁移完毕。</p>
+<h2 id="hash确定桶的下角标优化"><a href="#hash确定桶的下角标优化" class="headerlink" title="hash确定桶的下角标优化"></a>hash确定桶的下角标优化</h2><p>在hash桶的大小为<code>2^n</code>的时候，在对hash值确定桶的位置时可以通过<code>hash%2^n</code>来确定，而模运算相对于位运算操作的时间不是一个数量级，可以进行优化，在对hash值确定桶的位置时，可以通过<code>hash&amp;(2^n-1)</code>来确定。<strong>但是前提是桶的长度必须是<code>2^n</code></strong></p>
+<h1 id="String设计理念"><a href="#String设计理念" class="headerlink" title="String设计理念"></a>String设计理念</h1><h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>Redis中所有的key都是String类型的数据结构，由于Redis是由C语言进行编写的，C语言存储字符串会在字符串末尾添加“\0”来区分边界。如果是这样的话，在我们存储二进制带有\0的数据时，会导致数据的丢失。所以Redis存储字符串时，用的是自己的数据结构SDS（Simple Dynamic String），结构如下（redis3.2之前）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> len;</span><br><span class="line">    <span class="type">int</span> <span class="built_in">free</span>;</span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在进行append,bitmap操作的时候，字符串会进行扩容，buf并不会扩容拼接大小，而是会扩容到<code>(len+addlen)*2</code>大小，len中记录的是数据的大小，而free中则记录的是数组的空闲大小，在buf大小超过1M 即1024*1024个字符后，每次扩容时，均会增大1M，不会遵循<code>(len+addlen)*2</code>来进行扩容。所以为了避免空间的浪费，尽量数据不要大于1M。</p>
+<p>在buf中为了兼容c语言的函数库，SDS会在最后追加<code>\0</code>。</p>
+<p>综上，Redis设计SDS数据结构的有点为：</p>
+<ol>
+<li>提供二进制安全的数据结构</li>
+<li>提供了内存预分配机制，避免了频繁的内存分配（空间换时间）</li>
+<li>兼容C语言函数库</li>
+</ol>
+<p>在redis3.2之后，SDS数据结构发生了改变:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">char</span> *sds;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr5</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr16</span> &#123;</span></span><br><span class="line">    <span class="type">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr32</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr64</span> &#123;</span></span><br><span class="line">........</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>buf：存储数据大小</li>
+<li>alloc：已分配大小，即buf大小</li>
+<li>len：总大小</li>
+</ul>
+<p>为什么对len进行了区分？因为int类型占4个字节，4*8bit=32bit,大约40亿的大小，而buf中存储这么大的数据的可能性不是很大，就造成了len资源的浪费，所以redis3.2之后，将len进行了分段。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.3d2mga5ehoy0.png"
+                     
+                ></p>
+<p>在数据向左偏移一个字节后，会得到flags标识，这个标识总共占五位，通过前三位可以确定数据用哪个数据结构来进行存储。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SDS_TYPE_5  0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SDS_TYPE_8  1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SDS_TYPE_16 2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SDS_TYPE_32 3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SDS_TYPE_64 4</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="底层编码"><a href="#底层编码" class="headerlink" title="底层编码"></a>底层编码</h2><p>对于数据类型String来讲，底层的编码结构有三种</p>
+<ul>
+<li>embstr</li>
+<li>int</li>
+<li>raw</li>
+</ul>
+<h3 id="int"><a href="#int" class="headerlink" title="int"></a>int</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;       <span class="comment">// 4  bite 数据的具体类型，用来指定当前value的数据类型 如string,set,zset,list,hash</span></span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;   <span class="comment">// 4  bite 数据的value在redis底层所对应的数据类型 如 int,row,embstr,ziplist等</span></span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS; <span class="comment">// 24 byte </span></span><br><span class="line">    <span class="type">int</span> refcount;          <span class="comment">// 4  byte 引用计数法来管理内存</span></span><br><span class="line">    <span class="type">void</span> *ptr;             <span class="comment">// 8  byte 数据真实所存在的地址</span></span><br><span class="line">&#125; robj;					   <span class="comment">// redisObject总大小为16 byte</span></span><br></pre></td></tr></table></figure>
+
+<p>redisObject中，在set值得时候，通过<code>sdslen</code>来获取value的字符串长度，如果字符串长度小于等于20，并且可以转换为long，则直接可以通过<code>*ptr</code>来存储所对应的value,这样减少了存储空间的并且减少了一次CPU的IO，因为如果<code>*ptr</code>存储对应的地址的话，还需要通过地址获取到对应的值。</p>
+<h3 id="embstr（embedded-string）"><a href="#embstr（embedded-string）" class="headerlink" title="embstr（embedded string）"></a>embstr（embedded string）</h3><p>CPU在获取内存的时候，并不是每次可以获取随意的大小，内存操作的最基本单位是cache line，每个cache line占64byte。而redisObject的大小为16 byte,在一次内存的获取中，多余的48 byte可能没有用，并且还需要通过<code>*ptr</code>再一次获取到真实的数据。那可不可以把48 byte利用上呢?对于sdshdr8来讲，len占用1个字节，alloc占用一个字节，flags占用一个字节，由于兼容c语言函数库，会在buf末尾拼接上<code>\0</code>也会占用一个字节，此时还剩下44个字节，所以如果存储的字符串长度小于等于44时，会优化为embstr，这样的好处是内存一次读取的操作，就可以将值获取出来。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="raw"><a href="#raw" class="headerlink" title="raw"></a>raw</h3><p>就是最原始的SDS数据。</p>
+<h1 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h1><h2 id="底层数据结构-1"><a href="#底层数据结构-1" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>底层数据结构为string,编码格式为<code>sdshdr32</code>,即位图存储数据最大为<code>2^32-1</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr32</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="bitcount怎么实现的？"><a href="#bitcount怎么实现的？" class="headerlink" title="bitcount怎么实现的？"></a>bitcount怎么实现的？</h2><p>汉明重量，通过位运算来进行统计的</p>
+<h1 id="List底层设计"><a href="#List底层设计" class="headerlink" title="List底层设计"></a>List底层设计</h1><p>list底层设计的时候，没通过链表去实现，可以看到redis中的list是双向链表，如果在64位操作系统中进行实现的话，每个对象需要包含一个指向前一个数据的指针与指向后一个数据的指针，每个指针占用8byte。在value比较小的情况下，每个对象占用的大小可能比value占用的还多，这在程序设计上有个名称叫胖指针。</p>
+<p>另一个缺点是，链表的指针，每个对象在内存中空间不连续，会产生大量的碎片。</p>
+<p>Redis采用quicklist(双端链表)和ziplist作为list的底层实现</p>
+<h2 id="zipList"><a href="#zipList" class="headerlink" title="zipList"></a>zipList</h2><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.3nu2v2ncuk60.png"
+                     
+                ></p>
+<ul>
+<li><p><strong>zlbytes</strong>:32bit，表示ziplist占用的字节总数。</p>
+</li>
+<li><p><strong>zltail</strong>:  32bit，表示ziplist表中最后一项（entry）在ziplist中的偏移字节数。通过zltail我们可以很方便地找到最后一项，从而可以在ziplist尾端快速地执行push或pop操作</p>
+</li>
+<li><p><strong>zlen</strong>:   16bit， 表示ziplist中数据项（entry）的个数。</p>
+</li>
+<li><p><strong>entry</strong>:表示真正存放数据的数据项，长度不定</p>
+</li>
+<li><p><strong>zlend</strong>: ziplist最后1个字节，是一个结束标记，值固定等于255。</p>
+</li>
+<li><p><strong>prerawlen</strong>: 前一个entry的数据长度。</p>
+</li>
+<li><p><strong>len</strong>: entry中数据的长度</p>
+</li>
+<li><p><strong>data</strong>: 真实数据存储</p>
+</li>
+</ul>
+<p>在数据进行删除与新增时，会重新生成一个zipList并将原ziplist中的数据拷贝到新的ziplist中，在数据量较大的时候，在增删时，耗费性能较大。</p>
+<h2 id="quickList"><a href="#quickList" class="headerlink" title="quickList"></a>quickList</h2><p>由于考虑到ziplist在数据量较大时，进行增删性能消耗较大，redis设计了quickList,在ziplist数据量较大时，会进行分裂，分裂成多个ziplist。多大时进行分裂可以进行配置，ziplist也可以进行压缩存储，比如说数据不是经常用，可以压缩来节省空间。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">list</span>-max-ziplist-size  <span class="number">-2</span> <span class="comment">//  单个ziplist节点最大能存储8kb,超过则进行分裂,将数据存储在新的ziplist节点中</span></span><br><span class="line"><span class="built_in">list</span>-compress-depth  <span class="number">1</span>    <span class="comment">//  0代表所有节点，都不进行压缩；1代表从头节点往后走一个，尾节点往前走一个不用压缩，其他的全部压缩；2，3，4 ... 以此类推</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.6ep9a87egk00.png"
+                     
+                ></p>
+<h1 id="Hash底层设计"><a href="#Hash底层设计" class="headerlink" title="Hash底层设计"></a>Hash底层设计</h1><p>Hash 数据结构底层实现为一个字典( dict ),也是RedisBb用来存储K-V的数据结构,当数据量比较小，或者单个元素比较小时，底层用ziplist存储，数据大小和元素数量阈值可以通过如下参数设置</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.19nvewrdx11c.png"
+                     
+                ></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hash-max-ziplist-entries  <span class="number">512</span>     <span class="comment">//  ziplist元素个数超过512，将改为hashtable编码 </span></span><br><span class="line">hash-max-ziplist-value    <span class="number">64</span>      <span class="comment">//  单个元素大小超过64byte时，将改为hashtable编码</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Set底层设计"><a href="#Set底层设计" class="headerlink" title="Set底层设计"></a>Set底层设计</h1><p>Set 为无序的，自动去重的集合数据类型，Set 数据结构底层实现为一个value 为 null 的 字典( dict ),当数据可以用整形表示时，Set集合将被编码为intset数据结构。两个条件任意满足时Set将用hashtable存储数据。</p>
+<ol>
+<li><p>元素个数大于 set-max-intset-entries </p>
+</li>
+<li><p>元素无法用整形表示 </p>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span>-max-intset-entries <span class="number">512</span>       <span class="comment">// intset 能存储的最大元素个数，超过则用hashtable编码</span></span><br></pre></td></tr></table></figure>
+
+<p>当数据存储为intset数据结构的时候，通过smembers查看数据会发现数据是有序的，为什么是有序的呢？因为如果数据是有序的，可以进行快速的数据查找</p>
+<h2 id="intset"><a href="#intset" class="headerlink" title="intset"></a>intset</h2><p>整数集合是一个有序的，存储整型数据的结构。整型集合在Redis中可以保存int16_t,int32_t,int64_t类型的整型数据，并且可以保证集合中不会出现重复数据</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span>  encoding;     <span class="comment">//编码类型</span></span><br><span class="line">    <span class="type">uint32_t</span>  length;       <span class="comment">//元素个数</span></span><br><span class="line">    <span class="type">int8_t</span>    contents[];   <span class="comment">//元素存储</span></span><br><span class="line">&#125; intset; </span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTSET_ENC_INT16 (sizeof(int16_t))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTSET_ENC_INT32 (sizeof(int32_t))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTSET_ENC_INT64 (sizeof(int64_t))</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.53ontieag5s0.png"
+                     
+                ></p>
+<h1 id="zset底层设计"><a href="#zset底层设计" class="headerlink" title="zset底层设计"></a>zset底层设计</h1><p>ZSet 为有序的，自动去重的集合数据类型，ZSet 数据结构底层实现为 字典(dict) + 跳表(skiplist) ,当数据比较少时，用ziplist编码结构存储。dict用来存储数据与分数的对应关系，这样可以让命令zscore可以直接通过元素来获取到分值，时间复杂度为O(1),skiplist用来根据分数查询数据（可能是范围查找）</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.2azt2x53mias.png"
+                     
+                ></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zset-max-ziplist-entries  <span class="number">128</span>    <span class="comment">// 元素个数超过128 ，将用skiplist编码</span></span><br><span class="line">zset-max-ziplist-value     <span class="number">64</span>    <span class="comment">// 单个元素大小超过64byte, 将用skiplist编码</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="skipList"><a href="#skipList" class="headerlink" title="skipList"></a>skipList</h2><p>通过用空间换时间的方式，进行创建索引层冗余数据，时间复杂度为O(logn),而redis并不是按照正常的跳表来进行创建的索引层，进行了改良。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.2lpl8covfac0.png"
+                     
+                ></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// 创建zset 数据结构: 字典 + 跳表</span></span><br><span class="line">robj *<span class="title function_">createZsetObject</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    zset *zs = zmalloc(<span class="keyword">sizeof</span>(*zs));</span><br><span class="line">    robj *o;</span><br><span class="line">    <span class="comment">// dict用来查询数据到分数的对应关系， 如 zscore 就可以直接根据 元素拿到分值 </span></span><br><span class="line">    zs-&gt;dict = dictCreate(&amp;zsetDictType,<span class="literal">NULL</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// skiplist用来根据分数查询数据（可能是范围查找）</span></span><br><span class="line">    zs-&gt;zsl = zslCreate();</span><br><span class="line">    <span class="comment">// 设置对象类型 </span></span><br><span class="line">    o = createObject(OBJ_ZSET,zs);</span><br><span class="line">    <span class="comment">// 设置编码类型 </span></span><br><span class="line">    o-&gt;encoding = OBJ_ENCODING_SKIPLIST;</span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> &#123;</span></span><br><span class="line">    sds ele;</span><br><span class="line">    <span class="type">double</span> score;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">backward</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistLevel</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">forward</span>;</span></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> span;</span><br><span class="line">    &#125; level[];</span><br><span class="line">&#125; zskiplistNode;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplist</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">header</span>, *<span class="title">tail</span>;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> length;</span><br><span class="line">    <span class="type">int</span> level;</span><br><span class="line">&#125; zskiplist;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line">    dict *dict;</span><br><span class="line">    zskiplist *zsl;</span><br><span class="line">&#125; zset;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.2wa1yvmwsri0.png"
+                     
+                ></p>
+<p>zskiplist元素包括</p>
+<ul>
+<li>header：头节点，不进行数据的存储</li>
+<li>tail：指向尾节点</li>
+<li>length：数据的个数</li>
+<li>level：索引的层高</li>
+</ul>
+<p>zskiplist中存储的元素对象为zskiplistNode,每个zskipNode包含以下元素</p>
+<ul>
+<li>ele：存储的具体元素</li>
+<li>score：分值</li>
+<li>backword：后退指针</li>
+<li>forward：所指向的下一个索引</li>
+<li>span：索引高度</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.19flnq499hsw.png"
+                     
+                ></p>
+<h3 id="层高的确定"><a href="#层高的确定" class="headerlink" title="层高的确定"></a>层高的确定</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ZSKIPLIST_MAXLEVEL 32 <span class="comment">/* Should be enough for 2^32 elements */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ZSKIPLIST_P 0.25      <span class="comment">/* Skiplist P = 1/4 */</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">zslRandomLevel</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="type">int</span> level = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> ((random()&amp;<span class="number">0xFFFF</span>) &lt; (ZSKIPLIST_P * <span class="number">0xFFFF</span>)) <span class="comment">// 如果随机整型小于整型的四分之一,即四分之一的概率为true</span></span><br><span class="line">        level += <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> (level&lt;ZSKIPLIST_MAXLEVEL) ? level : ZSKIPLIST_MAXLEVEL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>zskiplist在放入数据的时候，会随机生成索引层高,如果生成的索引层高大于目前的索引层高的话，会初始化新的层高。</p>
+<h1 id="GeoHash算法"><a href="#GeoHash算法" class="headerlink" title="GeoHash算法"></a>GeoHash算法</h1><p>GeoHash是一种地理位置编码方法。 由Gustavo Niemeyer 和 G.M. Morton于2008年发明，它将地理位置编码为一串简短的字母和数字。它是一种分层的空间数据结构，将空间细分为网格形状的桶，这是所谓的z顺序曲线的众多应用之一，通常是空间填充曲线。<br>Redis通过GEO API可以通过经纬度查找指定区间范围的目标，GEO的底层数据类型为zset。</p>
+<h2 id="GeoHash经纬度编码"><a href="#GeoHash经纬度编码" class="headerlink" title="GeoHash经纬度编码"></a>GeoHash经纬度编码</h2><p>经度范围是东经180到西经180，纬度范围是南纬90到北纬90，我们设定西经为负，南纬为负，所以地球上的经度范围就是[-180， 180]，纬度范围就是[-90，90]。<br>如果以本初子午线、赤道为界，地球可以分成4个部分。<br>如果纬度范围[-90°, 0°)用二进制0代表，（0°, 90°]用二进制1代表，经度范围[-180°, 0°)用二进制0代表，（0°, 180°]用二进制1代表，那么地球可以分成如下(左图 )4个部分，如果每个区域再次进行划分，则可以看到划分的区域又多了，也更精确了（右图）</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.24x7u60f8ekg.png"
+                     
+                ></p>
+<p>通过GeoHash算法，可以将经纬度的二维坐标变成一个可排序、可比较的的字符串编码。 在编码中的每个字符代表一个区域，并且前面的字符是后面字符的父区域。其算法的过程如下：<br>根据GeoHash 来计算 纬度的 二进制编码地球纬度区间是[-90,90]， 如某纬度是39.92324，可以通过下面算法来进行维度编码:</p>
+<ol>
+<li>区间[-90,90]进行二分为[-90,0),[0,90]，称为左右区间，可以确定39.92324属于右区间[0,90]，给标记为1</li>
+<li>接着将区间[0,90]进行二分为 [0,45),[45,90]，可以确定39.92324属于左区间 [0,45)，给标记为0</li>
+<li>递归上述过程39.92324总是属于某个区间[a,b]。随着每次迭代区间[a,b]总在缩小，并越来越逼近39.928167</li>
+<li>如果给定的纬度（39.92324）属于左区间，则记录0，如果属于右区间则记录1，这样随着算法的进行会产生一个序列1011 1000 1100 0111 1001，序列的长度跟给定的区间划分次数有关</li>
+<li>同理，经度产生的编码为1101 0010 1100 0100 0100</li>
+<li>偶数位放经度，奇数位放纬度，把2串编码组合生成新串：11100 11101 00100 01111 00000 01101 01011 00001</li>
+</ol>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.5ae6z8wlkuc0.png"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.v4xhnnwlt1s.png"
+                     
+                ></p>
+<ol start="7">
+<li>最后使用0-9、b-z（去掉a, i, l, o）这32个字母进行base32编码，首先将11100 11101 00100 01111 00000 01101 01011 00001转成十进制 28，29，4，15，0，13，11，1，十进制对应的编码就是wx4g0ec1。同理，将编码转换成经纬度的解码算法与之相反。</li>
+</ol>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.asy5r4mkqbk.png"
+                     
+                ></p>
+<h3 id="GeoHash的缺陷"><a href="#GeoHash的缺陷" class="headerlink" title="GeoHash的缺陷"></a>GeoHash的缺陷</h3><p>这种类型的空间填充曲线的优点是将二维空间转换成一维曲线（事实上是分形维），对大部分而言，编码相似的距离也相近，但Peano空间填充曲线最大的缺点就是突变性，有些编码相邻但距离却相差很远，比如0111与1000，编码是相邻的，但距离相差很大。即具有相似前缀的字符串在附近，但反之则不然，具有不同前缀的字符串也可能在附近。</p>
+<h2 id="Redis中的实现"><a href="#Redis中的实现" class="headerlink" title="Redis中的实现"></a>Redis中的实现</h2><p>Redis中进行了26次切分，即经度与维度均切分了26次,位置使用52位整数进行编码会生成11个字符的Geohash字符串，可以看到redis实现的Geohash可以确定范围为0.15m以内的精度。Redis中将传入经纬度进行编码为一个整型值，并封装为一个String,作为zadd的score。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.5ai180flaxg0.png"
+                     
+                ></p>
+<h1 id="Redis6-0新特性"><a href="#Redis6-0新特性" class="headerlink" title="Redis6.0新特性"></a>Redis6.0新特性</h1><ul>
+<li>多线程</li>
+<li>客户端缓存</li>
+<li>权限</li>
+</ul>
+<h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><p>redis 6.0 提供了多线程的支持，redis 6 以前的版本，严格来说也是多线程，只不过执行用户命令的请求时单线程模型，还有一些线程用来执行后台任务， 比如 unlink 删除 大key，rdb持久化等。<br>redis 6.0 提供了多线程的读写IO, 但是最终执行用户命令的线程依然是单线程的，这样，就没有多线程数据的竞争关系，依然很高效。</p>
+<p>redis 6.0 以前线程执行模式，如下操作在一个线程中执行完成</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.4hkvir1ckag0.png"
+                     
+                ></p>
+<p>redis 6.0 可以通过如下参数配置多线程模型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io-threads <span class="number">4</span>  <span class="comment">// 这里说有三个IO线程，还有一个线程是main线程，main线程负责IO读写和命令执行操作,而其余三个IO线程只负责将数据写回到客户端</span></span><br></pre></td></tr></table></figure>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.7fjgwk2zm8k0.png"
+                     
+                ></p>
+<p>也可以开启让io线程进行读操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io-threads-<span class="keyword">do</span>-reads yes <span class="comment">// IO线程执行读写任务</span></span><br></pre></td></tr></table></figure>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.2wolk825llc.png"
+                     
+                ></p>
+<h2 id="客户端缓存（client-side-caching-）"><a href="#客户端缓存（client-side-caching-）" class="headerlink" title="客户端缓存（client side caching ）"></a>客户端缓存（client side caching ）</h2><p>redis 6 提供了服务端追踪key的变化，客户端缓存数据的特性，这需要客户端实现</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.62wz5jkba7s0.png"
+                     
+                ></p>
+<p>当客户端访问某个key时，服务端将记录key 和 client ，客户端拿到数据后，进行客户端缓存，这时，当key再次被访问时，key将被直接返回，避免了与redis 服务器的再次交互，节省服务端资源，当数据被其他请求修改时，服务端将主动通知客户端失效的key，客户端进行本地失效，下次请求时，重新获取最新数据。</p>
+<h2 id="权限控制（ACL）"><a href="#权限控制（ACL）" class="headerlink" title="权限控制（ACL）"></a>权限控制（ACL）</h2><p>ACL 是对于命令的访问和执行权限的控制，默认情况下，可以有执行任意的指令，兼容以前版本<br>ACL设置有两种方式：</p>
+<ol>
+<li>命令方式 ACL SETUSER + 具体的权限规则， 通过 ACL SAVE 进行持久化</li>
+<li>对 ACL 配置文件进行编写，并且执行 ACL LOAD 进行加载</li>
+</ol>
+<p>ACL存储有两种方式，但是两种方式不能同时配置，否则直接报错退出进程</p>
+<ol>
+<li>redis 配置文件： redis.conf</li>
+<li>ACL配置文件：在redis.conf 中通过 aclfile  /path  配置acl文件的路径</li>
+</ol>
+<h2 id="命令使用"><a href="#命令使用" class="headerlink" title="命令使用"></a>命令使用</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACL SETUSER alice   <span class="comment">// 创建一个 用户名为alice的用户</span></span><br></pre></td></tr></table></figure>
+
+<p>用如上的命令创建的用户语义为：</p>
+<ol>
+<li>处于 off 状态， 它是被禁用的，不能用auth进行认证</li>
+<li>不能访问任何命令</li>
+<li>不能访问任意的key</li>
+<li>没有密码</li>
+</ol>
+<p>创建一个对 cached: 前缀具有get命令执行权限的用户，并且设置密码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acl setuser alice on &gt;pass123  ~cached:* +get </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">auth alice pass123</span><br><span class="line"><span class="built_in">set</span> a a</span><br><span class="line">(error) NOPERM this user has no permissions to run the <span class="string">&#x27;set&#x27;</span> <span class="built_in">command</span> or its subcommand</span><br><span class="line">get a a </span><br><span class="line">(error) NOPERM this user has no permissions to access one of the keys used as arguments</span><br><span class="line">get cached:name</span><br><span class="line">vvv</span><br></pre></td></tr></table></figure>
+
+<p>如上，如果访问没有被授权的命令，或者key， 将报错，set 命令没有被授权， key  a 没有被授权，cached:name 可以通过验证。</p>
+<p>添加多个访问模式，空格分隔， 注意，切换其他用户进行登录，alice没有admin权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACL SETUSER alice ~objects:* ~items:* ~public:*</span><br></pre></td></tr></table></figure>
+
+<h3 id="针对类型命令的约束"><a href="#针对类型命令的约束" class="headerlink" title="针对类型命令的约束"></a>针对类型命令的约束</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACL SETUSER alice on +@all -@dangerous &gt;密码 ~*</span><br></pre></td></tr></table></figure>
+
+<p>这里+@all:  包含所有得命令 然后用-@ 去除在redis command table 中定义的 dangerous 命令</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.1a9fpcybsqlc.png"
+                     
+                ></p>
+<p>可以通过如下命令进行查看具体有哪些命令属于某个类别</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acl <span class="built_in">cat</span> // 查看所有类别</span><br><span class="line">acl <span class="built_in">cat</span> dangerous // 查看所有的 dangerous 命令</span><br></pre></td></tr></table></figure>
+
+<h3 id="开放子命令"><a href="#开放子命令" class="headerlink" title="开放子命令"></a>开放子命令</h3><p>禁用client 命令，但是开放 client 命令中的子命令  setname 和 getname ，只能是先禁用，后追加子命令，因为后续可能会有新的命令增加。 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACL SETUSER myuser -client +client|setname +client|getname</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/09/22/Java/%E5%B9%B6%E5%8F%91/%E7%BA%BF%E7%A8%8B%E6%B1%A0Executor/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">线程池Executor</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/09/08/%E9%9D%A2%E8%AF%95%E9%A2%98/%E5%88%86%E5%B8%83%E5%BC%8F%E9%9D%A2%E8%AF%95%E9%A2%98/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">分布式面试题</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redisDB%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">redisDB数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%90%E8%BF%9B%E5%BC%8Frehash"><span class="nav-number">1.1.</span> <span class="nav-text">渐进式rehash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hash%E7%A1%AE%E5%AE%9A%E6%A1%B6%E7%9A%84%E4%B8%8B%E8%A7%92%E6%A0%87%E4%BC%98%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">hash确定桶的下角标优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#String%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">String设计理念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">底层数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E7%BC%96%E7%A0%81"><span class="nav-number">2.2.</span> <span class="nav-text">底层编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#int"><span class="nav-number">2.2.1.</span> <span class="nav-text">int</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#embstr%EF%BC%88embedded-string%EF%BC%89"><span class="nav-number">2.2.2.</span> <span class="nav-text">embstr（embedded string）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#raw"><span class="nav-number">2.2.3.</span> <span class="nav-text">raw</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bitmap"><span class="nav-number">3.</span> <span class="nav-text">bitmap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-1"><span class="nav-number">3.1.</span> <span class="nav-text">底层数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bitcount%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">bitcount怎么实现的？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#List%E5%BA%95%E5%B1%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">List底层设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#zipList"><span class="nav-number">4.1.</span> <span class="nav-text">zipList</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#quickList"><span class="nav-number">4.2.</span> <span class="nav-text">quickList</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hash%E5%BA%95%E5%B1%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.</span> <span class="nav-text">Hash底层设计</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Set%E5%BA%95%E5%B1%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">6.</span> <span class="nav-text">Set底层设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#intset"><span class="nav-number">6.1.</span> <span class="nav-text">intset</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#zset%E5%BA%95%E5%B1%82%E8%AE%BE%E8%AE%A1"><span class="nav-number">7.</span> <span class="nav-text">zset底层设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#skipList"><span class="nav-number">7.1.</span> <span class="nav-text">skipList</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%82%E9%AB%98%E7%9A%84%E7%A1%AE%E5%AE%9A"><span class="nav-number">7.1.1.</span> <span class="nav-text">层高的确定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GeoHash%E7%AE%97%E6%B3%95"><span class="nav-number">8.</span> <span class="nav-text">GeoHash算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GeoHash%E7%BB%8F%E7%BA%AC%E5%BA%A6%E7%BC%96%E7%A0%81"><span class="nav-number">8.1.</span> <span class="nav-text">GeoHash经纬度编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GeoHash%E7%9A%84%E7%BC%BA%E9%99%B7"><span class="nav-number">8.1.1.</span> <span class="nav-text">GeoHash的缺陷</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">8.2.</span> <span class="nav-text">Redis中的实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis6-0%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-number">9.</span> <span class="nav-text">Redis6.0新特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-number">9.1.</span> <span class="nav-text">多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%BC%93%E5%AD%98%EF%BC%88client-side-caching-%EF%BC%89"><span class="nav-number">9.2.</span> <span class="nav-text">客户端缓存（client side caching ）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%EF%BC%88ACL%EF%BC%89"><span class="nav-number">9.3.</span> <span class="nav-text">权限控制（ACL）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8"><span class="nav-number">9.4.</span> <span class="nav-text">命令使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E7%B1%BB%E5%9E%8B%E5%91%BD%E4%BB%A4%E7%9A%84%E7%BA%A6%E6%9D%9F"><span class="nav-number">9.4.1.</span> <span class="nav-text">针对类型命令的约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E6%94%BE%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="nav-number">9.4.2.</span> <span class="nav-text">开放子命令</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            MESI缓存一致性协议 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">MESI缓存一致性协议</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2020-08-20 15:53:36
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java/">Java</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E5%B9%B6%E5%8F%91/">并发</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>3.3k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>12 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="CPU高速缓存（Cache-Memory）"><a href="#CPU高速缓存（Cache-Memory）" class="headerlink" title="CPU高速缓存（Cache Memory）"></a>CPU高速缓存（Cache Memory）</h1><h2 id="CPU为何要有高速缓存"><a href="#CPU为何要有高速缓存" class="headerlink" title="CPU为何要有高速缓存"></a>CPU为何要有高速缓存</h2><p>CPU在摩尔定律的指导下以每18个月翻一番的速度在发展，然而内存和硬盘的发展速度远远不及CPU。这就造成了高性能能的内存和硬盘价格及其昂贵。然而CPU的高度运算需要高速的数据。为了解决这个问题，CPU厂商在CPU中内置了少量的高速缓存以解决I\O速度和CPU运算速度之间的不匹配问题。<br>在CPU访问存储设备时，无论是存取数据抑或存取指令，都趋于聚集在一片连续的区域中，这就被称为局部性原理。<br><strong>时间局部性（Temporal Locality）</strong>：如果一个信息项正在被访问，那么在近期它很可能还会被再次访问。<br>比如循环、递归、方法的反复调用等。<br><strong>空间局部性（Spatial Locality）</strong>：如果一个存储器的位置被引用，那么将来他附近的位置也会被引用。<br>比如顺序执行的代码、连续创建的两个对象、数组等。</p>
+<h2 id="带有高速缓存的CPU执行计算的流程"><a href="#带有高速缓存的CPU执行计算的流程" class="headerlink" title="带有高速缓存的CPU执行计算的流程"></a>带有高速缓存的CPU执行计算的流程</h2><ol>
+<li>程序以及数据被加载到主内存</li>
+<li>指令和数据被加载到CPU的高速缓存</li>
+<li>CPU执行指令，把结果写到高速缓存</li>
+<li>高速缓存中的数据写回主内存<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.1r3rzoqjw1q8.png"
+                      alt="0"
+                ></li>
+</ol>
+<h2 id="目前流行的多级缓存结构"><a href="#目前流行的多级缓存结构" class="headerlink" title="目前流行的多级缓存结构"></a>目前流行的多级缓存结构</h2><p>由于CPU的运算速度超越了1级缓存的数据I\O能力，CPU厂商又引入了多级的缓存结构。<br>多级缓存结构<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210803/image.xr285d1bokg.png"
+                      alt="0"
+                ></p>
+<h1 id="多核CPU多级缓存一致性协议MESI"><a href="#多核CPU多级缓存一致性协议MESI" class="headerlink" title="多核CPU多级缓存一致性协议MESI"></a>多核CPU多级缓存一致性协议MESI</h1><p>多核CPU的情况下有多个一级缓存，如何保证缓存内部数据的一致,不让系统数据混乱。这里就引出了一个一致性的协议MESI。</p>
+<h2 id="MESI协议缓存状态"><a href="#MESI协议缓存状态" class="headerlink" title="MESI协议缓存状态"></a>MESI协议缓存状态</h2><p>MESI 是指4种状态的首字母。<strong>缓存行（Cache line）</strong>为缓存的最小存储单位，每个缓存行有4个状态，可用2个bit表示，它们分别是：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>描述</th>
+<th>监听任务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M 修改 (Modified)</td>
+<td>该Cache line有效，数据被修改了，和内存中的数据不一致，数据只存在于本Cache中。</td>
+<td>缓存行必须时刻监听所有试图读该缓存行相对应的内存的操作，其他缓存须在本缓存行写回内存并将状态置为E之后才能操作该缓存行对应的内存数据</td>
+</tr>
+<tr>
+<td>E 独享、互斥 (Exclusive)</td>
+<td>该Cache line有效，数据和内存中的数据一致，数据只存在于本Cache中。</td>
+<td>缓存行也必须监听其它缓存读主存中该缓存行的操作，一旦有这种操作，该缓存行需要变成S（共享）状态。</td>
+</tr>
+<tr>
+<td>S 共享 (Shared)</td>
+<td>该Cache line有效，数据和内存中的数据一致，数据存在于很多Cache中。</td>
+<td>缓存行也必须监听其它缓存使该缓存行无效或者独享该缓存行的请求，并将该缓存行变成无效（Invalid）。</td>
+</tr>
+<tr>
+<td>I 无效 (Invalid)</td>
+<td>该Cache line无效。</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<p><strong>注意：</strong></p>
+<p><strong>对于M和E状态而言总是精确的，他们在和该缓存行的真正状态是一致的，而S状态可能是非一致的</strong>。如果一个缓存将处于S状态的缓存行作废了，而另一个缓存实际上可能已经独享了该缓存行，但是该缓存却不会将该缓存行升迁为E状态，这是因为其它缓存不会广播他们作废掉该缓存行的通知，同样由于缓存并没有保存该缓存行的copy的数量，因此（即使有这种通知）也没有办法确定自己是否已经独享了该缓存行。<br>从上面的意义看来E状态是一种投机性的优化：如果一个CPU想修改一个处于S状态的缓存行，总线事务需要将所有该缓存行的copy变成invalid状态，而修改E状态的缓存不需要使用总线事务。</p>
+<h2 id="MESI状态转换"><a href="#MESI状态转换" class="headerlink" title="MESI状态转换"></a>MESI状态转换</h2><p>​    <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/MESI%E5%8D%8F%E8%AE%AE%E7%8A%B6%E6%80%81%E5%88%87%E6%8D%A2%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90.5yjq9d6cooo0.jpg"
+                      alt="0"
+                ></p>
+<p>理解该图的前置说明：</p>
+<ul>
+<li><p>触发事件</p>
+<table>
+<thead>
+<tr>
+<th>触发事件</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地读取（Local read）</td>
+<td>本地cache读取本地cache数据</td>
+</tr>
+<tr>
+<td>本地写入（Local write）</td>
+<td>本地cache写入本地cache数据</td>
+</tr>
+<tr>
+<td>远端读取（Remote read）</td>
+<td>其他cache读取本地cache数据</td>
+</tr>
+<tr>
+<td>远端写入（Remote write）</td>
+<td>其他cache写入本地cache数据</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>cache分类</p>
+<p>前提：所有的cache共同缓存了主内存中的某一条数据。<br>本地cache: 指当前cpu的cache。<br>触发cache: 触发读写事件的cache。<br>其他cache: 指既除了以上两种之外的cache。<br>注意：本地的事件触发 本地cache和触发cache为相同。</p>
+</li>
+</ul>
+<p>上图的切换解释：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>触发本地读取</th>
+<th>触发本地写入</th>
+<th align="left">触发远端读取</th>
+<th>触发远端写入</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>M状态（修改）</strong></td>
+<td>本地cache:M 触发cache:M其他cache:I</td>
+<td>本地cache:M 触发cache:M其他cache:I</td>
+<td align="left">本地cache:M→E→S触发cache:I→S其他cache:I→S同步主内存后修改为E独享,同步触发、其他cache后本地、触发、其他cache修改为S共享</td>
+<td>本地cache:M→E→S→I触发cache:I→S→E→M其他cache:I→S→I同步和读取一样,同步完成后触发cache改为M，本地、其他cache改为I</td>
+</tr>
+<tr>
+<td><strong>E状态（独享）</strong></td>
+<td>本地cache:E触发cache:E其他cache:I</td>
+<td>本地cache:E→M触发cache:E→M其他cache:I本地cache变更为M,其他cache状态应当是I（无效）</td>
+<td align="left">本地cache:E→S触发cache:I→S其他cache:I→S当其他cache要读取该数据时，其他、触发、本地cache都被设置为S(共享)</td>
+<td>本地cache:E→S→I触发cache:I→S→E→M其他cache:I→S→I当触发cache修改本地cache独享数据时时，将本地、触发、其他cache修改为S共享.然后触发cache修改为独享，其他、本地cache修改为I（无效），触发cache再修改为M</td>
+</tr>
+<tr>
+<td><strong>S状态(共享)</strong></td>
+<td>本地cache:S触发cache:S其他cache:S</td>
+<td>本地cache:S→E→M触发cache:S→E→M其他cache:S→I 当本地cache修改时，将本地cache修改为E,其他cache修改为I,然后再将本地cache为M状态</td>
+<td align="left">本地cache:S触发cache:S其他cache:S</td>
+<td>本地cache:S→I触发cache：S→E→M其他cache:S→I当触发cache要修改本地共享数据时，触发cache修改为E（独享）,本地、其他cache修改为I（无效）,触发cache再次修改为M(修改)</td>
+</tr>
+<tr>
+<td><strong>I状态（无效）</strong></td>
+<td>本地cache:I→S或者I→E触发cache:I→S或者I →E其他cache:E、M、I→S、I本地、触发cache将从I无效修改为S共享或者E独享，其他cache将从E、M、I 变为S或者I</td>
+<td>本地cache:I→S→E→M触发cache:I→S→E→M其他cache:M、E、S→S→I</td>
+<td align="left">既然是本cache是I，其他cache操作与它无关</td>
+<td>既然是本cache是I，其他cache操作与它无关</td>
+</tr>
+</tbody></table>
+<p>下图示意了，当一个cache line的调整的状态的时候，另外一个cache line 需要调整的状态。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>M</th>
+<th>E</th>
+<th>S</th>
+<th><strong>I</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>M</strong></td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td><strong>S</strong></td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td><strong>I</strong></td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+</tbody></table>
+<p>举个栗子来说：<br>假设cache 1 中有一个变量x = 0的cache line 处于S状态(共享)。<br>那么其他拥有x变量的cache 2、cache 3等x的cache line调整为S状态（共享）或者调整为 I 状态（无效）。</p>
+<h2 id="多核缓存协同操作"><a href="#多核缓存协同操作" class="headerlink" title="多核缓存协同操作"></a>多核缓存协同操作</h2><p>假设有三个CPU A、B、C，对应三个缓存分别是cache a、b、 c。在主内存中定义了x的引用值为0。<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.79kf9ox8gzo0.png"
+                      alt="0"
+                ></p>
+<h3 id="单核读取"><a href="#单核读取" class="headerlink" title="单核读取"></a>单核读取</h3><p>那么执行流程是：</p>
+<ul>
+<li>CPU A发出了一条指令，从主内存中读取x。</li>
+<li>从主内存通过bus读取到缓存中（远端读取Remote read）,这时该Cache line修改为E状态（独享）。</li>
+</ul>
+<p> <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.7knv2cys65c.png"
+                      alt="0"
+                ></p>
+<h3 id="双核读取"><a href="#双核读取" class="headerlink" title="双核读取"></a>双核读取</h3><p>那么执行流程是：</p>
+<ul>
+<li>CPU A发出了一条指令，从主内存中读取x。</li>
+<li>CPU A从主内存通过bus读取到 cache a中并将该cache line 设置为E状态。</li>
+<li>CPU B发出了一条指令，从主内存中读取x。</li>
+<li>CPU B试图从主内存中读取x时，CPU A检测到了地址冲突。这时CPU A对相关数据做出响应。此时x 存储于cache a和cache b中，x在chche a和cache b中都被设置为S状态(共享)。</li>
+</ul>
+<p> <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.3eykaouyaqe0.png"
+                      alt="0"
+                ></p>
+<h3 id="修改数据"><a href="#修改数据" class="headerlink" title="修改数据"></a>修改数据</h3><p>那么执行流程是：</p>
+<ul>
+<li>CPU A 计算完成后发指令需要修改x.</li>
+<li>CPU A 将x设置为M状态（修改）并通知缓存了x的CPU B, CPU B将本地cache b中的x设置为I状态(无效)</li>
+<li>CPU A 对x进行赋值。</li>
+</ul>
+<p> <img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.4ze9q091f9o0.png"
+                      alt="0"
+                ></p>
+<h3 id="同步数据"><a href="#同步数据" class="headerlink" title="同步数据"></a>同步数据</h3><p>那么执行流程是：</p>
+<ul>
+<li>CPU B 发出了要读取x的指令。</li>
+<li>CPU B 通知CPU A,CPU A将修改后的数据同步到主内存时cache a 修改为E（独享）</li>
+<li>CPU A同步CPU B的x,将cache a和同步后cache b中的x设置为S状态（共享）。<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/20210804/image.4u9crncqqh60.png"
+                      alt="0"
+                ></li>
+</ul>
+<h1 id="volatile为何能够保证可见性"><a href="#volatile为何能够保证可见性" class="headerlink" title="volatile为何能够保证可见性"></a>volatile为何能够保证可见性</h1><p>volatile会将变量带上lock标志，<strong>lock会触发硬件缓存锁定机制, 锁定机制有两种: 总线锁和缓存一致性协议</strong>，早期cpu核数较少，当cpu想要去内存读取数据时，会经过bus总线。如果多个cpu想要读取带有lock的变量，则需要获取总线锁，只有获取到总线锁的才可以对变量进行操作。可以看到这种方法的缺点, 一旦抢到锁, 那么只有这个cpu可以执行,其他cpu就没有办法在访问内存里的这个变量了。没有办法发挥多核并发的能力。因此发展出了缓存一致性协议。</p>
+<p>我们知道加了volatile的变量, 就被lock标记了. 那么被lock标记后的变量是如何工作的呢</p>
+<ol>
+<li>计算器启动, 有两个cpu, 那么两个cpu都会<strong>监听bus总线上带有lock标记的变量</strong></li>
+<li>内存中有一个变量initFlag=false</li>
+<li>cpu core0 要调用initFlag, 这时候 ,首先<strong>拷贝一份initFlag 放入到bus总线</strong>, bus总线监控到<strong>initFlag带有lock标记</strong>, <strong>于是所有cpu都监控到这个变量.</strong> </li>
+<li>然后将initFlag 拷贝到L3 cache–&gt;L2 cache ,此时, 只有一个cpu使用到这个变量, 所以, <strong>initFlag此时的状态是独享</strong>的状态.</li>
+<li>另一个cpu core1 也要调用initFlag变量, 通过bus总线监控到已经有线程在使用这个变量了, 于是, cpu core0也监控到cpu core1 使用这个变量了, 此时, 将initFlag的状态<strong>由独占变为共享状态</strong>. 同时cpu core1的中initFlag的状态<strong>也是共享状态</strong>. </li>
+<li>接下来, cpu core1和cpu core2都想要去修改这个变量, 是如何操作的呢? 我们知道, 在缓存中, 有一个缓存行, 变量保存在缓存行里, 每个cpu需要抢占锁, 然后锁住缓存行, 并告诉bus总线, 我抢到锁了, 监听bus总线的所有cpu都将得知, 当前已经有一个线程获取的锁, 我们要将这个变量丢弃, 于是变量<strong>从共享状态变为丢弃状态.</strong> </li>
+<li>获得锁的cpu, 修改变量, 这时<strong>变量的状态从共享状态变为修改状态</strong>. 然后重新写回到主内存, 在经过bus总线的时候, 所有cpu都被告知initFlag变量已经被修改, 需要重新获取新的initFlag变量.</li>
+<li>当两个线程同时修改initFlag, 并同时抢到锁, 怎么办呢? 他们会同时告诉bus总线, 我抢到锁了, 由bus<strong>总线裁决</strong>, 到底有谁来执行. </li>
+<li><strong>cache line 的大小为64byte，如果一个变量大小大于了64byte,则会直接加总线锁。</strong></li>
+</ol>
+<h1 id="volatile为什么不能保证原子性"><a href="#volatile为什么不能保证原子性" class="headerlink" title="volatile为什么不能保证原子性"></a>volatile为什么不能保证原子性</h1><p>缓存一致性协议只能失效缓存行的数据, 而不能失效寄存器的数据, 导致volatile不能做到原子性。</p>
+<p>比如: cpu core0 从内存里读取了一个volatile变量 counter = 0, 然后将其从L1缓存总将变量加载到寄存器进行计算. 计算完写回到L1 缓存, 此时, 变量的状态是修改, 然后通知bus总线, 所有的cpu都会监测到counter变量已经被修改, 丢弃自己现有的变量.  cpu core1 此时会丢弃counter = 0, <strong>但是如果counter已经被读取到寄存器进行计算了. 即使在L1内存中的数据被丢弃, 获取到了新的counter值, 当寄存器计算完以后, 会重新回写到L1缓存, 此时会覆盖刚刚读取到的counter=1</strong>, 将自己计算的counter=1写入内存中。</p>
+<h1 id="不加volatile就不能够保证可见性吗？"><a href="#不加volatile就不能够保证可见性吗？" class="headerlink" title="不加volatile就不能够保证可见性吗？"></a>不加volatile就不能够保证可见性吗？</h1><p>加volatile可以保证变量即时可见，而不添加volatile cpu也会将缓存中的数据刷新到内存中，但是不会保证立即进行刷新，而是仅当缓存控制器别无选择，只能将新的缓存块放入已占用的空间时，才将缓存刷新回主内存。 先前占用该空间的块将被删除，并将其值写回到主存储器。</p>
+<p><strong>参考</strong></p>
+<hr>
+<p><a class="link"   target="_blank" rel="noopener" href="https://superuser.com/questions/869525/when-is-cpu-cache-flushed-back-to-main-memory" >https://superuser.com/questions/869525/when-is-cpu-cache-flushed-back-to-main-memory<i class="fas fa-external-link-alt"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/MESI_protocol" >http://en.wikipedia.org/wiki/MESI_protocol<i class="fas fa-external-link-alt"></i></a></p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2020/09/09/Java/%E5%B9%B6%E5%8F%91/JVM%E5%86%85%E7%BD%AE%E9%94%81synchronized/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">JVM内置锁synchronized</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2020/08/07/Java/%E5%B9%B6%E5%8F%91/JAVA%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">JAVA内存模型</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98%EF%BC%88Cache-Memory%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">CPU高速缓存（Cache Memory）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E4%B8%BA%E4%BD%95%E8%A6%81%E6%9C%89%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">CPU为何要有高速缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%A6%E6%9C%89%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98%E7%9A%84CPU%E6%89%A7%E8%A1%8C%E8%AE%A1%E7%AE%97%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">带有高速缓存的CPU执行计算的流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%89%8D%E6%B5%81%E8%A1%8C%E7%9A%84%E5%A4%9A%E7%BA%A7%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">目前流行的多级缓存结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8CPU%E5%A4%9A%E7%BA%A7%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AEMESI"><span class="nav-number">2.</span> <span class="nav-text">多核CPU多级缓存一致性协议MESI</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI%E5%8D%8F%E8%AE%AE%E7%BC%93%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-number">2.1.</span> <span class="nav-text">MESI协议缓存状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MESI%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2"><span class="nav-number">2.2.</span> <span class="nav-text">MESI状态转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8%E7%BC%93%E5%AD%98%E5%8D%8F%E5%90%8C%E6%93%8D%E4%BD%9C"><span class="nav-number">2.3.</span> <span class="nav-text">多核缓存协同操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E6%A0%B8%E8%AF%BB%E5%8F%96"><span class="nav-number">2.3.1.</span> <span class="nav-text">单核读取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E6%A0%B8%E8%AF%BB%E5%8F%96"><span class="nav-number">2.3.2.</span> <span class="nav-text">双核读取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%95%B0%E6%8D%AE"><span class="nav-number">2.3.3.</span> <span class="nav-text">修改数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%95%B0%E6%8D%AE"><span class="nav-number">2.3.4.</span> <span class="nav-text">同步数据</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile%E4%B8%BA%E4%BD%95%E8%83%BD%E5%A4%9F%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">volatile为何能够保证可见性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E4%BF%9D%E8%AF%81%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">volatile为什么不能保证原子性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8D%E5%8A%A0volatile%E5%B0%B1%E4%B8%8D%E8%83%BD%E5%A4%9F%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E5%90%97%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">不加volatile就不能够保证可见性吗？</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

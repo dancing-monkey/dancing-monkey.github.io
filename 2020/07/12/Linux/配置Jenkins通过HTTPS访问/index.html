@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            配置Jenkins通过HTTPS访问 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">配置Jenkins通过HTTPS访问</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2020-07-12 21:17:10
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/DevOps/">DevOps</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>847 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>4 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="通过-pfx文件来生成-jks文件"><a href="#通过-pfx文件来生成-jks文件" class="headerlink" title="通过.pfx文件来生成.jks文件"></a>通过.pfx文件来生成.jks文件</h2><p><code>keytool -importkeystore -srckeystore &lt;pfx文件路径&gt; -srcstoretype pkcs12 -destkeystore jenkins.&lt;网址&gt;.jks -deststoretype JKS</code></p>
+<blockquote>
+<p>在生成的过程中，需要输入<code>pfx-password</code>，这个一般在颁发证书的时候就直接将这个密码给你了。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">[root@vultr ~]# ls -al</span><br><span class="line">total 56</span><br><span class="line">dr-xr-x---.  5 root root 4096 May 29 08:24 .</span><br><span class="line">dr-xr-xr-x. 18 root root 4096 May 15 22:06 ..</span><br><span class="line">-rw-r--r--   1 root root 4554 May 29 07:58 2266529_www.dancingmonkey.cn.pfx</span><br><span class="line">-rw-------   1 root root 1399 May 24 12:22 .bash_history</span><br><span class="line">-rw-r--r--.  1 root root   18 Dec 29  2013 .bash_logout</span><br><span class="line">-rw-r--r--.  1 root root  176 Dec 29  2013 .bash_profile</span><br><span class="line">-rw-r--r--.  1 root root  176 Dec 29  2013 .bashrc</span><br><span class="line">drwx------   3 root root 4096 May 21 03:26 .cache</span><br><span class="line">-rw-r--r--.  1 root root  100 Dec 29  2013 .cshrc</span><br><span class="line">drwxr-----   3 root root 4096 May 15 22:10 .pki</span><br><span class="line">drwx------   2 root root 4096 May 27 06:48 .ssh</span><br><span class="line">-rw-r--r--.  1 root root  129 Dec 29  2013 .tcshrc</span><br><span class="line">-rw-------   1 root root 1032 May 29 08:09 .viminfo</span><br><span class="line">[root@vultr ~]# keytool -importkeystore -srckeystore /root/2266529_www.dancingmonkey.cn.pfx -srcstoretype pkcs12 -destkeystore jenkins.dancingmonkey.cn.jks -deststoretype JKS</span><br><span class="line">Importing keystore /root/2266529_www.dancingmonkey.cn.pfx to jenkins.dancingmonkey.cn.jks...</span><br><span class="line">Enter destination keystore password:</span><br><span class="line">Re-enter new password:</span><br><span class="line">Enter source keystore password:</span><br><span class="line">Entry for alias alias successfully imported.</span><br><span class="line">Import command completed:  1 entries successfully imported, 0 entries failed or cancelled</span><br><span class="line"></span><br><span class="line">Warning:</span><br><span class="line">The JKS keystore uses a proprietary format. It is recommended to migrate to PKCS12 which is an industry standard format using &quot;keytool -importkeystore -srckeystore jenkins.dancingmonkey.cn.jks -destkeystore jenkins.dancingmonkey.cn.jks -deststoretype pkcs12&quot;.</span><br><span class="line">[root@vultr ~]# ls -al</span><br><span class="line">total 60</span><br><span class="line">drwx------.  5 jenkins jenkins 4096 May 29 08:24 .</span><br><span class="line">dr-xr-xr-x. 18 root    root    4096 May 15 22:06 ..</span><br><span class="line">-rw-r--r--   1 jenkins jenkins 4554 May 29 07:58 2266529_www.dancingmonkey.cn.pfx</span><br><span class="line">-rw-------   1 jenkins jenkins 1399 May 24 12:22 .bash_history</span><br><span class="line">-rw-r--r--.  1 jenkins jenkins   18 Dec 29  2013 .bash_logout</span><br><span class="line">-rw-r--r--.  1 jenkins jenkins  176 Dec 29  2013 .bash_profile</span><br><span class="line">-rw-r--r--.  1 jenkins jenkins  176 Dec 29  2013 .bashrc</span><br><span class="line">drwx------   3 jenkins jenkins 4096 May 21 03:26 .cache</span><br><span class="line">-rw-r--r--.  1 jenkins jenkins  100 Dec 29  2013 .cshrc</span><br><span class="line">-rw-r--r--   1 jenkins jenkins 4003 May 29 08:24 jenkins.dancingmonkey.cn.jks</span><br><span class="line">drwxr-----   3 jenkins jenkins 4096 May 15 22:10 .pki</span><br><span class="line">drwx------   2 jenkins jenkins 4096 May 27 06:48 .ssh</span><br><span class="line">-rw-r--r--.  1 jenkins jenkins  129 Dec 29  2013 .tcshrc</span><br><span class="line">-rw-------   1 jenkins jenkins 1032 May 29 08:09 .viminfo</span><br></pre></td></tr></table></figure>
+<h2 id="备份-etc-sysconfig-jenkins"><a href="#备份-etc-sysconfig-jenkins" class="headerlink" title="备份/etc/sysconfig/jenkins"></a>备份/etc/sysconfig/jenkins</h2><p><code>cp /etc/sysconfig/jenkins /etc/sysconfig/jenkins.bak</code></p>
+<h2 id="停止jenkins-服务"><a href="#停止jenkins-服务" class="headerlink" title="停止jenkins 服务"></a>停止jenkins 服务</h2><p><code>service jenkins stop</code></p>
+<h2 id="更改配置文件"><a href="#更改配置文件" class="headerlink" title="更改配置文件"></a>更改配置文件</h2><p>将 <code>/etc/sysconfig/jenkins</code> 的最后一行<code>JENKINS_ARGS=&quot;&quot;</code>更新为：<br><code>JENKINS_ARGS=&quot; --httpsPort=8443 --httpsKeyStore=/var/lib/jenkins/jenkins-1.jks --httpsKeyStorePassword=xxx --httpsPrivateKeyPassword=xxx --httpPort=-1&quot;</code></p>
+<h2 id="启动Jenkins并访问"><a href="#启动Jenkins并访问" class="headerlink" title="启动Jenkins并访问"></a>启动Jenkins并访问</h2><p><code>service jenkins start</code>启动<code>jenkins</code>后通过<code>https (8443)</code> 访问公网<code>jenkins</code>:<code>https://&lt;hostname&gt;:8443/</code>发现无法访问，查看<code>jenkins</code>日志发现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">java.io.IOException: Failed to start a listener: winstone.HttpsConnectorFactory</span><br><span class="line">	at winstone.Launcher.spawnListener(Launcher.java:<span class="number">217</span>)</span><br><span class="line">	at winstone.Launcher.&lt;init&gt;(Launcher.java:<span class="number">177</span>)</span><br><span class="line">	at winstone.Launcher.main(Launcher.java:<span class="number">362</span>)</span><br><span class="line">	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">	at java.lang.reflect.Method.invoke(Method.java:<span class="number">498</span>)</span><br><span class="line">	at Main._main(Main.java:<span class="number">375</span>)</span><br><span class="line">	at Main.main(Main.java:<span class="number">151</span>)</span><br><span class="line">Caused by: winstone.WinstoneException: No SSL key store found at /root/jenkins.dancingmonkey.cn.jks</span><br><span class="line">	at winstone.AbstractSecuredConnectorFactory.configureSsl(AbstractSecuredConnectorFactory.java:<span class="number">66</span>)</span><br><span class="line">	at winstone.HttpsConnectorFactory.start(HttpsConnectorFactory.java:<span class="number">39</span>)</span><br><span class="line">	at winstone.Launcher.spawnListener(Launcher.java:<span class="number">215</span>)</span><br><span class="line">	... <span class="number">8</span> more</span><br></pre></td></tr></table></figure>
+<p><strong>后查找原因发现是因为<code>jenkins.dancingmonkey.cn.jks</code>权限不足导致的，因为<code>jenkins</code>如果不进行修改配置文件的话，默认<code>jenkins</code>会创建一个<code>jenkins</code>用户来执行相关命令,而<code>jks</code>文件是通过<code>root</code>用户创建出来的，<code>jenkins</code>没有权限来操作。</strong></p>
+<h2 id="给jks文件赋权"><a href="#给jks文件赋权" class="headerlink" title="给jks文件赋权"></a>给jks文件赋权</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@vultr ~]# chown -R jenkins.jenkins /root/jenkins.dancingmonkey.cn.jks</span><br><span class="line">[root@vultr ~]# chmod 700 /root/jenkins.dancingmonkey.cn.jks</span><br><span class="line">[root@vultr ~]# service jenkins restart</span><br><span class="line">Restarting jenkins (via systemctl):                        [  OK  ]</span><br></pre></td></tr></table></figure>
+<p><strong>赋完权限后发现还是无法访问，但是<code>jenkins</code>日志中正常启动，没有报错。防火墙端口未暴露…</strong></p>
+<h2 id="防火墙开放8443端口"><a href="#防火墙开放8443端口" class="headerlink" title="防火墙开放8443端口"></a>防火墙开放8443端口</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@vultr ~]# firewall-cmd --zone=public --add-port=8443/tcp --permanent</span><br><span class="line">success</span><br><span class="line">[root@vultr ~]# firewall-cmd --reload</span><br><span class="line">success</span><br></pre></td></tr></table></figure>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2020/07/31/Java/JVM/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8G1-ZGC%E8%AF%A6%E8%A7%A3/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">垃圾收集器G1&amp;ZGC详解</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2020/07/12/Java/JVM/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8ParNew-CMS%E4%B8%8E%E5%BA%95%E5%B1%82%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">垃圾收集器ParNew&amp;CMS与底层三色标记算法详解</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87-pfx%E6%96%87%E4%BB%B6%E6%9D%A5%E7%94%9F%E6%88%90-jks%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">通过.pfx文件来生成.jks文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%87%E4%BB%BD-etc-sysconfig-jenkins"><span class="nav-number">2.</span> <span class="nav-text">备份&#x2F;etc&#x2F;sysconfig&#x2F;jenkins</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%81%9C%E6%AD%A2jenkins-%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.</span> <span class="nav-text">停止jenkins 服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">更改配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8Jenkins%E5%B9%B6%E8%AE%BF%E9%97%AE"><span class="nav-number">5.</span> <span class="nav-text">启动Jenkins并访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%99jks%E6%96%87%E4%BB%B6%E8%B5%8B%E6%9D%83"><span class="nav-number">6.</span> <span class="nav-text">给jks文件赋权</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99%E5%BC%80%E6%94%BE8443%E7%AB%AF%E5%8F%A3"><span class="nav-number">7.</span> <span class="nav-text">防火墙开放8443端口</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

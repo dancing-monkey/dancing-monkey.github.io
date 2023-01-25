@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Chay">
+    
+    <title>
+        
+            k8s简介 |
+        
+        Chay&#39;s Blog
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.svg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.png","favicon":"/images/logo.svg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":false,"background_img":"/images/bg.svg","description":"君子藏器于身，待时而动。"},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":false}}},"local_search":{"enable":true,"preload":false},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Chay&#39;s Blog
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">k8s简介</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Chay</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-03-14 17:12:20
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/K8S/">K8S</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>2.4k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>8 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="Kubernetes是什么"><a href="#Kubernetes是什么" class="headerlink" title="Kubernetes是什么"></a>Kubernetes是什么</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.2scrbq39cim0.webp"
+                     
+                ></p>
+<ul>
+<li><p><strong>传统部署时代</strong></p>
+<p>早期，各个组织机构在物理服务器上运行应用程序。无法为物理服务器中的应用程序定义资源边界，这会导致资源分配问题。例如，如果在物理服务器上运行多个应用程序，则可能会出现一个应用程序占用大部分资源的情况，结果可能导致其他应用程序的性能下降。 一种解决方案是在不同的物理服务器上运行每个应用程序，但是由于资源利用不足而无法扩展，并且维护许多物理服务器的成本很高。</p>
+</li>
+<li><p><strong>虚拟化部署时代</strong></p>
+<p>作为解决方案，引入了虚拟化。虚拟化技术允许你在单个物理服务器的CPU上运行多个虚拟机（VM）。虚拟化允许应用程序在VM之间隔离，并提供一定程度的安全，因为一个应用程序的信息不能被另一应用程序随意访问。<br>虚拟化技术能够更好地利用物理服务器上的资源，并且因为可轻松地添加或更新应用程序而可以实现更好的可伸缩性，降低硬件成本等等。<br>每个VM是一台完整的计算机，在虚拟化硬件之上运行所有组件，包括其自己的操作系统。</p>
+</li>
+<li><p><strong>容器部署时代</strong></p>
+<p>容器类似于VM，但是它们具有被放宽的隔离属性，可以在应用程序之间共享操作系统（OS）。<br>因此，容器被认为是轻量级的。容器与VM类似，具有自己的文件系统、CPU、内存、进程空间等。由于它们与基础架构分离，因此可以跨云和OS发行版本进行移植。<br>容器因具有许多优势而变得流行起来。下面列出的是容器的一些好处：</p>
+<ul>
+<li>敏捷应用程序的创建和部署：与使用VM镜像相比，提高了容器镜像创建的简便性和效率。</li>
+<li>持续开发、集成和部署：通过快速简单的回滚（由于镜像不可变性），支持可靠且频繁的容器镜像构建和部署。</li>
+<li>关注开发与运维的分离：在构建发布时而不是在部署时创建应用程序容器镜像，从而将应用程序与基础架构分离。</li>
+<li>可观察性：不仅可以显示操作系统级别的信息和指标，还可以显示应用程序的运行状况和其他指标信号。</li>
+<li>跨开发、测试和生产的环境一致性：在便携式计算机上与在云中相同地运行。</li>
+<li>跨云和操作系统发行版本的可移植性：可在Ubuntu、RHEL、CoreOS、本地、Google Kubernetes engine和其他任何地方运行。</li>
+<li>以应用程序为中心的管理：提高抽象级别，从在虚拟硬件上运行OS到使用逻辑资源在OS上运行应用程序。</li>
+<li>松散耦合、分布式、弹性、解放的微服务：应用程序被分解成较小的独立部分，并且可以动态部署和管理 而不是在一台大型单机上整体运行。</li>
+<li>资源隔离：可预测的应用程序性能。</li>
+<li>资源利用：高效率和高密度。</li>
+</ul>
+</li>
+</ul>
+<p>容器是捆绑和运行应用程序的好方法。在生产环境中，您需要管理运行应用程序的容器并确保没有停机时间。例如，如果一个容器发生故障，则另一个容器需要启动。如果这种行为由系统处理会不会更容易？</p>
+<h1 id="为什么需要Kubernetes，它能做什么"><a href="#为什么需要Kubernetes，它能做什么" class="headerlink" title="为什么需要Kubernetes，它能做什么"></a>为什么需要Kubernetes，它能做什么</h1><ul>
+<li><strong>服务发现和负载均衡</strong><br>Kubernetes可以使用DNS名称或自己的IP地址公开容器，如果进入容器的流量很大，Kubernetes可以负载均衡并分配网络流量，从而使部署稳定。</li>
+<li><strong>自动部署和回滚</strong><br>你可以使用Kubernetes描述已部署容器的所需状态，它可以以受控的速率将实际状态 更改为期望状态。例如，你可以自动化Kubernetes来为你的部署创建新容器，删除现有容器并将它们的所有资源用于新容器。</li>
+<li><strong>自动完成装箱计算</strong><br>Kubernetes允许你指定每个容器所需CPU和内存（RAM）。当容器指定了资源请求时，Kubernetes可以做出更好的决策来管理容器的资源。</li>
+<li><strong>自我修复</strong><br>Kubernetes重新启动失败的容器、替换容器、杀死不响应用户定义的运行状况检查的容器，并且在准备好服务之前不将其通告给客户端。</li>
+<li><strong>密钥与配置管理</strong><br>Kubernetes允许你存储和管理敏感信息，例如密码、OAuth令牌和ssh密钥。你可以在不重建容器镜像的情况下部署和更新密钥和应用程序配置，也无需在堆栈配置中暴露密钥。</li>
+<li><strong>弹性扩展</strong><br>定义期待的容器状态与资源，K8S自动检测、创建、删除实例和配置以满足要求。</li>
+<li><strong>存储编排</strong><br>Kubernetes允许你自动挂载你选择的存储系统，例如本地存储、公共云提供商等。允许你自动挂载你选择的存储系统，例如本地存储、公共云提供商等。</li>
+</ul>
+<h1 id="K8s容器生态系统及容器编排技术对比"><a href="#K8s容器生态系统及容器编排技术对比" class="headerlink" title="K8s容器生态系统及容器编排技术对比"></a>K8s容器生态系统及容器编排技术对比</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.2k6cnrpw11k0.webp"
+                     
+                ></p>
+<p>容器编排对比</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.7aianm69d080.webp"
+                     
+                ></p>
+<h1 id="Kubernetes版本进化"><a href="#Kubernetes版本进化" class="headerlink" title="Kubernetes版本进化"></a>Kubernetes版本进化</h1><ul>
+<li>2014年6月：谷歌宣布kubernetes开源</li>
+<li>2014年7月：Mircrosoft、Red Hat、IBM、Docker、CoreOS、Mesosphere和Saltstack加入kubernetes。</li>
+<li>2014年8月：2014年8月Mesosphere宣布将kubernetes作为frame整合到mesosphere生态系统中，用于Docker容器集群的调度、部署和管理</li>
+<li>2014年8月：VMware加入kubernetes社区</li>
+<li>2014年11月HP加入kubernetes社区</li>
+<li>2014年11月：Google容器引擎Alpha启动，谷歌宣布GCE中支持容器及服务，并以kubernetes为构架</li>
+<li>2015年1月：Google和 Mirantis及伙伴将kubernetes引入OpenStack开发者可以在openstack上部署运行kubernetes应用</li>
+<li>2015年4月： Google和CoreOs联合发布Tectonic它将kubernetes和CoreOS软件栈整合在了一起</li>
+<li>2015年5月： Intel加入kubernetes社区，宣布将合作加速Tectonic软件栈的发展进度</li>
+<li>2015年6月：Google容器引擎进入beta版</li>
+<li>2015年7月：Google正式加入OpenStack基金会，Kubernetes的产品经理宣称将把它容器计算的专家技术带入OpenStack</li>
+<li>2015年7月：Kuberentes v1.0正式发布</li>
+<li>2017年9月：Kuberentes v1. 8正式发布</li>
+<li>2017年12月：Kuberentes v1. 9正式发布</li>
+<li>2022年3月：Kuberentes 1.22</li>
+</ul>
+<h1 id="Kubernetes概念"><a href="#Kubernetes概念" class="headerlink" title="Kubernetes概念"></a>Kubernetes概念</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.5do1zwfiwmg0.webp"
+                     
+                ></p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.2rqlrmegk700.webp"
+                     
+                ></p>
+<ul>
+<li><strong>控制平面组件（Control Plane Components）</strong><ul>
+<li><strong>api server：</strong>作为kubernetes系统的入口，封装了核心对象的增删改查操作，以RESTFUL接口方式提供给外部客户和内部组件调用。它维护的REST对象将持久化到etcd（一个分布式强一致性的 key/value 存储）</li>
+<li><strong>scheduler：</strong>负责集群的资源调度，为新建的pod分配机器。这部分工作分出来变成一个组件，意味着可以很方便地替换成其他的调度器</li>
+<li><strong>controller manager：</strong>负责执行各种控制器，目前有两类<ol>
+<li><strong>endpoint controller：</strong>定期关联service 和pod( 关联信息由endpoint 对象维护)，保证service到pod的映射总是最新的</li>
+<li><strong>replication controller：</strong>定期关联replicationController和pod，保证replicationController定义的复制数量与实际运行pod的数量总是一致的</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>Node组件</strong><ul>
+<li><strong>kubelet：</strong>负责管控docker容器，如启动停止、监控运行状态等。它会定期从etcd获取分配到本机的pod，并根据pod信息启动或停止相应的容器。同时，它也会接收apiserver的HTTP请求，汇报pod的运行状态。</li>
+<li><strong>proxy：</strong>负责为pod提供代理。它会定期从etcd获取所有的service，并根据service信息创建代理。当某个客户pod要访问其他pod时，访问请求会经过本机proxy做代理。</li>
+<li><strong>Container Runtime：</strong> Docker engine</li>
+</ul>
+</li>
+<li><strong>插件（Addons）</strong><ul>
+<li><strong>Core DNS：</strong>kube-DNS,CoreDNS</li>
+<li><strong>Network plugin：</strong>Flannel, calico</li>
+<li><strong>Web界面（仪表盘）：</strong>Dashboard是Kubernetes集群的通用的、基于Web的用户界面。它使用户可以管理集群中运行的应用程序以及集群本身并进行故障排除。</li>
+<li><strong>容器资源监控：</strong>Heapster, Metrics server</li>
+</ul>
+</li>
+</ul>
+<h1 id="Kubernetes-HA集群"><a href="#Kubernetes-HA集群" class="headerlink" title="Kubernetes HA集群"></a>Kubernetes HA集群</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.52qzjdn10s40.webp"
+                     
+                ></p>
+<h1 id="Kubernetes中三个重要概念"><a href="#Kubernetes中三个重要概念" class="headerlink" title="Kubernetes中三个重要概念"></a>Kubernetes中三个重要概念</h1><ul>
+<li><strong>Pod：</strong>是Kubernetes最基本的部署调度单元，可以包含Container，逻辑上表示某种应用的一个实例。比如一个web站点应用由前端、后端及数据库构建而成，这三个组件将运行在各自的容器中，那么我们可以创建包含三个Container的Pod。</li>
+<li><strong>Service：</strong>也是Kubernetes的基本操作单元，是真实应用服务的抽象，每一个服务后面都有很多对应的容器来支持，通过Proxy的port和服务selector决定服务请求传递给后端提供服务的容器，对外表现为一个单一访问接口，外部不需要了解后端如何运行，这给扩展或维护后端带来很大的好处。</li>
+<li><strong>ReplicationController：</strong>是Pod的复制抽象，用于解决Pod的扩容缩容问题。通常，分布式应用为了性能或高可用性的考虑，需要复制多份资源，并且根据负载情况动态伸缩。通过ReplicationController，我们可以指定一个应用需要几份复制Kubernetes将为每份复制创建一个Pod，并且保证实际运行Pod数量总是与该复制数量相等。例如，当前某个Pod宕机时，自动创建新的Pod来替换。</li>
+</ul>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.746cnz2ez100.webp"
+                     
+                ></p>
+<h1 id="Kubernetes编排调度框架"><a href="#Kubernetes编排调度框架" class="headerlink" title="Kubernetes编排调度框架"></a>Kubernetes编排调度框架</h1><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://cdn.jsdelivr.net/gh/dancing-monkey/image-hosting@master/image.4hac8taq5pu0.webp"
+                     
+                ></p>
+<blockquote>
+<ul>
+<li><a class="link"   target="_blank" rel="noopener" href="https://www.kubernetes.org.cn/" >中文社区<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://kubernetes.io/" >官方网址<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+</blockquote>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2022/03/14/K8S/Kubectl%E4%BB%8B%E7%BB%8D/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Kubectl介绍</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/12/20/%E4%B8%AD%E9%97%B4%E4%BB%B6/Netty/Netty%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Netty核心源码剖析</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;评论</i>
+    </div>
+    
+
+        
+            
+    <div class="valine-container">
+        <script data-pjax
+                src="//cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script>
+        <div id="vcomments"></div>
+        <script data-pjax>
+            function loadValine() {
+                new Valine({
+                    el: '#vcomments',
+                    appId: 'A4KCp6T52xY83SQIkEScuKsd-gzGzoHsz',
+                    appKey: 'RocCmgouj5izXvuXVbRcaTDd',
+                    meta: ['nick', 'mail', 'link'],
+                    avatar: 'wavatar',
+                    enableQQ: true,
+                    placeholder: '',
+                    lang: 'zh-CN'.toLowerCase()
+                });
+
+                function getAuthor(language) {
+                    switch (language) {
+                        case 'en':
+                            return 'Author';
+                        case 'zh-CN':
+                            return '博主';
+                        default:
+                            return 'Master';
+                    }
+                }
+
+                // Add "Author" identify
+                const getValineDomTimer = setInterval(() => {
+                    const vcards = document.querySelectorAll('#vcomments .vcards .vcard');
+                    if (vcards.length > 0) {
+                        let author = 'Chay';
+
+                        if (author) {
+                            for (let vcard of vcards) {
+                                const vnick_dom = vcard.querySelector('.vhead .vnick');
+                                const vnick = vnick_dom.innerHTML;
+                                if (vnick === author) {
+                                    vnick_dom.innerHTML = `${vnick} <span class="author">${getAuthor(KEEP.hexo_config.language)}</span>`
+                                }
+                            }
+                        }
+                        clearInterval(getValineDomTimer);
+                    } else {
+                        clearInterval(getValineDomTimer);
+                    }
+                }, 2000);
+            }
+
+            if ('true') {
+                const loadValineTimeout = setTimeout(() => {
+                    loadValine();
+                    clearTimeout(loadValineTimeout);
+                }, 1000);
+            } else {
+                window.addEventListener('DOMContentLoaded', loadValine);
+            }
+        </script>
+    </div>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Chay</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        访问人数&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        总访问量&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="fas fa-arrow-up"></i>
+            </li>
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">Kubernetes是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81Kubernetes%EF%BC%8C%E5%AE%83%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">为什么需要Kubernetes，它能做什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#K8s%E5%AE%B9%E5%99%A8%E7%94%9F%E6%80%81%E7%B3%BB%E7%BB%9F%E5%8F%8A%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">K8s容器生态系统及容器编排技术对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E7%89%88%E6%9C%AC%E8%BF%9B%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">Kubernetes版本进化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E6%A6%82%E5%BF%B5"><span class="nav-number">5.</span> <span class="nav-text">Kubernetes概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes-HA%E9%9B%86%E7%BE%A4"><span class="nav-number">6.</span> <span class="nav-text">Kubernetes HA集群</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E4%B8%AD%E4%B8%89%E4%B8%AA%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5"><span class="nav-number">7.</span> <span class="nav-text">Kubernetes中三个重要概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kubernetes%E7%BC%96%E6%8E%92%E8%B0%83%E5%BA%A6%E6%A1%86%E6%9E%B6"><span class="nav-number">8.</span> <span class="nav-text">Kubernetes编排调度框架</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="搜索..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.3/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>
